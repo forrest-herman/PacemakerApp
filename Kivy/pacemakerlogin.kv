@@ -1,0 +1,134 @@
+# WindowManager:
+#     WelcomeWindow:
+#     LoginWindow:
+#     RegisterWindow:
+#     MainWindow:
+
+<WelcomeWindow>:
+    name: "welcomeWin"
+
+    
+    FloatLayout:
+        size: root.width-400, root.height-200
+        Label: 
+            text: "Welcome to the Pacemaker GUI"
+            font_size: 25*root.width/600
+            pos_hint: {"center_x":0.5, "y":0.2}
+        
+        ## Login
+        Button:
+            text:"Login"
+            size_hint: 0.3,0.1
+            pos_hint: {"center_x":0.5, "top":0.45}  ##The keys ‘x’, ‘right’ and ‘center_x’ will use the parent width. The keys ‘y’, ‘top’ and ‘center_y’ will use the parent height.
+            
+            on_release: 
+                # app.root.current = "second" if passw.text == "pace" else "main"
+                app.root.current = "loginWin"
+                root.manager.transition.direction = "up"
+                
+
+
+
+        ## Register
+        Button:
+            text:"Register"
+            size_hint: 0.3,0.1
+            pos_hint: {"center_x":0.5, "top":0.3}
+
+
+<LoginWindow>:
+    name: "loginWin"
+
+    nameField: nameField
+    passwField: password
+
+
+    FloatLayout:
+        size_hint: 0.4,0.7
+        pos_hint: {"center_x":0.5,"center_y":0.5}
+
+
+        BoxLayout:
+            orientation: "vertical"
+            spacing: 30
+            # padding: 0, 100 #padding_horizontal, padding_vertical
+            pos_hint: {"center_x":0.5,"center_y":0.5}
+
+            BoxLayout:
+                orientation: "vertical"
+                size_hint_y: 0.6
+                Label:
+                    text: "Returning User\nPlease Enter Your Details"
+                    halign: 'center'
+                    valign: 'top'
+                    font_size: 27*root.width/800
+                    size_hint: 1,0.1
+                    # pos_hint: {"center_x":0.5, "center_y":0.8}
+
+                Label:
+                    text: "Username: "
+                    font_size: 15
+                    size_hint_x: None
+                    size_hint_y: 0.08
+                    pos_hint: {'left': 1}
+                
+                TextInput:
+                    id:nameField
+                    multiline:False
+                    size_hint: 1,0.06
+                    # pos_hint: {"center_x":0.5, "center_y":0.55}
+
+                Label:
+                    text: "Password: "
+                    font_size: 15
+                    size_hint_x: None
+                    size_hint_y: 0.08
+                    pos_hint: {'left': 1}
+
+                TextInput:
+                    id: password
+                    multiline:False
+                    size_hint: 1,0.06
+                    # pos_hint: {"center_x":0.5, "center_y":0.35}
+
+            BoxLayout:
+                orientation: "vertical"
+                spacing: 10
+                size_hint_y: 0.25
+
+                Button:
+                    text:"Login"
+                    size_hint: 1,0.1
+                    # pos_hint: {"center_x":0.5, "center_y":0.2}
+                    on_press: root.btnLogin()
+
+                Button:
+                    text:"Back"
+                    size_hint: 1,0.1
+                    # pos_hint: {"center_x":0.5, "center_y":0.1}
+                    on_press: root.btnBack()
+
+
+<RegisterWindow>:
+    name: "registerWin"
+
+
+<MainWindow>:
+    name: "mainWin"
+    
+    #tempUser: userDisplay
+    #tempPass: passDisplay
+
+    # Label:
+    #     id: userDisplay
+    #     id: passDisplay
+    #     text: userDisplay, passDisplay
+    
+
+
+
+<errorPopup>:
+    Label:
+        text: "Invalid username or Password"
+        size_hint:0.6,0.2
+        pos_hint: {"x":0.2, "top":1}
