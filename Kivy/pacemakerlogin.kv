@@ -1,8 +1,11 @@
+#:kivy 1.11.1
 # WindowManager:
 #     WelcomeWindow:
 #     LoginWindow:
 #     RegisterWindow:
 #     MainWindow:
+
+
 
 <WelcomeWindow>:
     name: "welcomeWin"
@@ -116,6 +119,11 @@
 <MainWindow>:
     name: "mainWin"
     
+    currentUser: currentUser
+
+    Label:
+        id:currentUser
+        text: "Welcome, "
     #tempUser: userDisplay
     #tempPass: passDisplay
 

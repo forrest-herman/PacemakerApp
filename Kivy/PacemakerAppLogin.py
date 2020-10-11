@@ -15,7 +15,8 @@ kv = Builder.load_file("pacemakerlogin.kv")
 
 
 #TEMP
-# global user
+user = ""
+password = ""
 # global password
 
 ## Windows
@@ -32,20 +33,25 @@ class LoginWindow(Screen):
         ## Check username and password for correctness
 
         ## TEMP
-        # global user
-        # user = self.nameField.text
-        # global password
-        # password = self.passwField.text
+        global user
+        user = self.nameField.text
+        global password
+        password = self.passwField.text
 
         ## if good...
-        manageWin.transition = RiseInTransition()
-        manageWin.current = "mainWin"
+        if(user == "Forrest" and password == "1234"):
+            manageWin.transition = RiseInTransition()
+            manageWin.current = "mainWin"
+            self.reset()
+        ## if bad
+        else:
+            invalidLogin()
+
+    
+    def reset(self):
         self.nameField.text = ""
         self.passwField.text = ""
 
-        ## if bad
-        # invalidLogin()
-    
     ## Back
     def btnBack(self):
         manageWin.transition = SlideTransition()
@@ -56,13 +62,22 @@ class RegisterWindow(Screen):
     pass
 
 class MainWindow(Screen):
-    # global password
-    # global user
-    # tempUser = ObjectProperty(None)
+    global password
+    global user
+
+    currentUser = ObjectProperty(None)
+
+    def on_enter(self, *args):
+        user
+        self.currentUser.text = "Name: " + user
+
+
     # tempUser.text = user
     # tempPass = ObjectProperty(None)
     # tempPass.text = password
     pass
+
+
 
 class WindowManager(ScreenManager):
     pass
@@ -79,12 +94,10 @@ manageWin.current = "welcomeWin"
 
 
 
-def Login():
-    pass
+## Error Popup stuff
 
 class errorPopup(FloatLayout):
     pass
-
 
 def invalidLogin():
     show = errorPopup()
