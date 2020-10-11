@@ -97,18 +97,21 @@ manageWin.current = "welcomeWin"
 ## Error Popup stuff
 
 class errorPopup(FloatLayout):
-    pass
+    def closePopup(self):
+        popupWindow.dismiss()
 
 def invalidLogin():
     show = errorPopup()
+    global popupWindow
     popupWindow = Popup(title="Login Error", content=show,size_hint=(None,None), size=(300,200))
     popupWindow.open()
+    #return popupWindow
+    #errorPopup(Button).bind(on_press=popupWindow.dismiss)
 
 def invalidRegister():
     show = errorPopup()
     popupWindow = Popup(title="Email not legit", content=show,size_hint=(None,None), size=(300,200))
     popupWindow.open()
-
 
 
 
