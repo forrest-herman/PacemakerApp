@@ -13,6 +13,7 @@ from kivy.uix.screenmanager import (ScreenManager, Screen, NoTransition, SlideTr
 from kivy.graphics import Color
 from database import Database
 import os.path
+from kivy.clock import Clock
 
 kv = Builder.load_file("pacemakerlogin.kv")
 
@@ -136,6 +137,7 @@ class MainWindow(Screen):
         manageWin.transition.duration = 0.15
         manageWin.current = "welcomeWin"
         ## idea! popout: "Logout Successful"
+        signOut_Complete()
 
 
 ## WindowManager ----------------------------------------
@@ -162,8 +164,14 @@ class errorPopup(FloatLayout):
         popupWindow.dismiss()
 
 class successPopup(FloatLayout):
-    def closePopup(self):
+    def __init__(self, **kwargs):
+        super(successPopup, self).__init__(**kwargs)
+        # call dismiss_popup in 1 second
+        Clock.schedule_once(self.closePopup, 0.7)
+
+    def closePopup(self, timer):
         popupWindow.dismiss()
+
 
 def invalidLogin():
     show = errorPopup()
@@ -173,13 +181,22 @@ def invalidLogin():
 
 def invalidRegister():
     show = errorPopup()
+    global popupWindow
     popupWindow = Popup(title="Username not allowed or is already taken", content=show,size_hint=(None,None), size=(300,200))
     popupWindow.open()
 
 def registerComplete():
     show = successPopup()
+    global popupWindow
     popupWindow = Popup(title="You are now Registered", content=show,size_hint=(None,None), size=(300,200))
     popupWindow.open()
+
+def signOut_Complete():
+    show = successPopup()
+    global popupWindow
+    popupWindow = Popup(title="You have now signed out", content=show,size_hint=(None,None), size=(300,200))
+    popupWindow.open()
+
 
 
 
