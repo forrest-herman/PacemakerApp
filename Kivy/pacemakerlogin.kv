@@ -274,7 +274,40 @@
         text:"Ok"
         size_hint:0.6,0.3
         pos_hint: {"x":0.2, "top":0.4}
-        on_press: root.closePopup()
+        on_release: root.closePopup()
+
+
+# <errorPopup>:
+#     dialogueMessage:message
+#     size:400,300
+#     Label:
+#         id: message
+#         text: "Invalid username or password"
+#         size_hint:0.6,0.2
+#         pos_hint: {"x":0.2, "center_y":0.7}
+
+#     Button:
+#         text:"Ok"
+#         size_hint:0.6,0.3
+#         pos_hint: {"x":0.2, "top":0.4}
+#         on_press: root.closePopup()
+
+<errorMaxPopup>:
+    size:400,300
+    Label:
+        text: "Saved Account Limit Reached. \nA maximum of 10 accounts can be stored locally."
+        # size_hint:0.6,0.2
+        text_size: root.width-25, None
+        multiline:True
+        halign: 'center'
+        pos_hint: {"center_x":0.5, "center_y":0.7}
+
+    Button:
+        text:"Ok"
+        size_hint:0.6,0.3
+        pos_hint: {"center_x":0.5, "top":0.4}
+        on_release: root.closePopup()
+
 
 <successPopup>:
     size:400,300

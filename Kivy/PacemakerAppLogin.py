@@ -29,9 +29,13 @@ class WelcomeWindow(Screen):
         manageWin.current = "loginWin"
     
     def goToReg(self):
-        manageWin.transition = SlideTransition()
-        manageWin.transition.direction = "right"
-        manageWin.current = "registerWin"
+        if(len(userDatabase.users) < 10):
+            manageWin.transition = SlideTransition()
+            manageWin.transition.direction = "right"
+            manageWin.current = "registerWin"
+        else:
+            ## 10 account maximum reached
+            accountLimitReached()
 
 
 
@@ -86,9 +90,9 @@ class RegisterWindow(Screen):
         username = self.username_Field.text
         password = self.password_Field.text
 
-        if (self.notEmpty(username, fname, lname, password)):
+        if (self.notEmpty(username, fname, lname, password)):  ##### add check for forbitten characters, ie: ";"
             ## register user in database
-            if(userDatabase.add_user(username, fname, lname, password)):
+            if(userDatabase.add_user(username, fname, lname, password) == 1):
                 ## user added succesfully
                 self.reset() ## clear the form
                 manageWin.transition = SlideTransition()
@@ -138,6 +142,8 @@ class MainWindow(Screen):
         manageWin.current = "welcomeWin"
         ## idea! popout: "Logout Successful"
         signOut_Complete()
+    
+    ## Option to delete account!!
 
 
 ## WindowManager ----------------------------------------
@@ -160,8 +166,20 @@ manageWin.current = "welcomeWin"
 ## Error Popup stuff ----------------------------------------------------------------------
 
 class errorPopup(FloatLayout):
+    ## The following isn't working!
+    #dialogueMessage = ObjectProperty(None)
+    # def setMessage(self,message):
+    #     self.dialogueMessage.text = "Hellow"
+    
     def closePopup(self):
         popupWindow.dismiss()
+
+
+#maximum accounts reached 
+class errorMaxPopup(FloatLayout):    
+    def closePopup(self):
+        popupWindow.dismiss()
+
 
 class successPopup(FloatLayout):
     def __init__(self, **kwargs):
@@ -197,6 +215,13 @@ def signOut_Complete():
     popupWindow = Popup(title="You have now signed out", content=show,size_hint=(None,None), size=(300,200))
     popupWindow.open()
 
+def accountLimitReached():
+    #errorPopup().setMessage(message = "Account Limit Reached. Only 10 accounts can be stored locally at once.")
+    #print(errorPopup().dialogueMessage.text)
+    show = errorMaxPopup()
+    global popupWindow
+    popupWindow = Popup(title="Error", content=show,size_hint=(None,None), size=(300,200))
+    popupWindow.open()
 
 
 
