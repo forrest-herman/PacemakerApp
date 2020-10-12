@@ -1,3 +1,5 @@
+# main.py
+
 import kivy
 from kivy.app import App
 from kivy.lang import Builder
@@ -9,20 +11,30 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import (ScreenManager, Screen, NoTransition, SlideTransition, CardTransition, SwapTransition, FadeTransition, WipeTransition, FallOutTransition, RiseInTransition)
 from kivy.graphics import Color
-## database
+from database import Database
+import os.path
 
 kv = Builder.load_file("pacemakerlogin.kv")
 
 
-#TEMP
-user = ""
-password = ""
-# global password
+## Declare all the Screens ----------------------------------------------------------------------
 
-## Windows
+## WelcomeWindow ----------------------------------------
 
 class WelcomeWindow(Screen):
-    pass
+    def goToLogin(self):
+        manageWin.transition = SlideTransition()
+        manageWin.transition.direction = "up"
+        manageWin.current = "loginWin"
+    
+    def goToReg(self):
+        manageWin.transition = SlideTransition()
+        manageWin.transition.direction = "right"
+        manageWin.current = "registerWin"
+
+
+
+## LoginWindow ----------------------------------------
 
 class LoginWindow(Screen):
     nameField = ObjectProperty(None)
@@ -32,52 +44,101 @@ class LoginWindow(Screen):
     def btnLogin(self):
         ## Check username and password for correctness
 
-        ## TEMP
-        global user
         user = self.nameField.text
-        global password
         password = self.passwField.text
 
         ## if good...
-        if(user == "Forrest" and password == "1234"):
+        if(userDatabase.credentialCheck(user, password)):
             manageWin.transition = RiseInTransition()
             manageWin.current = "mainWin"
-            self.reset()
+            MainWindow.currentUsername = user
+            self.reset() ## clear the form
         ## if bad
         else:
             invalidLogin()
 
     
-    def reset(self):
-        self.nameField.text = ""
-        self.passwField.text = ""
-
-    ## Back
+    ## Go Back to Welcome
     def btnBack(self):
+        self.reset() ## clear the form
         manageWin.transition = SlideTransition()
         manageWin.transition.direction = "down"
         manageWin.current = "welcomeWin"
 
+    def reset(self):
+        self.nameField.text = ""
+        self.passwField.text = ""
+
+
+## RegisterWindow ----------------------------------------
+
 class RegisterWindow(Screen):
-    pass
+    firstName_Field = ObjectProperty(None)
+    lastName_Field = ObjectProperty(None)
+    username_Field = ObjectProperty(None)
+    password_Field = ObjectProperty(None)
+
+    def regUser(self):
+
+        fname = self.firstName_Field.text
+        lname = self.lastName_Field.text
+        username = self.username_Field.text
+        password = self.password_Field.text
+
+        if (self.notEmpty(username, fname, lname, password)):
+            ## register user in database
+            if(userDatabase.add_user(username, fname, lname, password)):
+                ## user added succesfully
+                self.reset() ## clear the form
+                manageWin.transition = SlideTransition()
+                manageWin.transition.direction = "left"
+                manageWin.current = "welcomeWin"
+                registerComplete() # popup
+            else:
+                invalidRegister() ## username already taken
+                self.reset()  ## clear the form
+        else:
+            invalidRegister()
+            self.reset()  ## clear the form
+    
+    def notEmpty(self,username,firstName,lastName,password):
+        if(username.strip() != "" and firstName.strip() != "" and lastName.strip() != "" and password.strip() != ""):
+            return 1
+        else: return 0
+
+
+    ## Go Back to Welcome
+    def btnBack(self):
+        self.reset() ## clear the form
+        manageWin.transition = SlideTransition()
+        manageWin.transition.direction = "left"
+        manageWin.current = "welcomeWin"
+
+    def reset(self):
+        self.firstName_Field.text = ""
+        self.lastName_Field.text = ""
+        self.username_Field.text = ""
+        self.password_Field.text = ""
+
+
+## MainWindow ----------------------------------------
 
 class MainWindow(Screen):
-    global password
-    global user
-
     currentUser = ObjectProperty(None)
+    currentUsername = ""
 
     def on_enter(self, *args):
-        user
-        self.currentUser.text = "Name: " + user
+        self.currentUser.text = "Name: " + userDatabase.get_user(self.currentUsername)[0]
+
+    def logout(self):
+        #edit transition
+        manageWin.transition = FallOutTransition()
+        manageWin.transition.duration = 0.15
+        manageWin.current = "welcomeWin"
+        ## idea! popout: "Logout Successful"
 
 
-    # tempUser.text = user
-    # tempPass = ObjectProperty(None)
-    # tempPass.text = password
-    pass
-
-
+## WindowManager ----------------------------------------
 
 class WindowManager(ScreenManager):
     pass
@@ -94,9 +155,13 @@ manageWin.current = "welcomeWin"
 
 
 
-## Error Popup stuff
+## Error Popup stuff ----------------------------------------------------------------------
 
 class errorPopup(FloatLayout):
+    def closePopup(self):
+        popupWindow.dismiss()
+
+class successPopup(FloatLayout):
     def closePopup(self):
         popupWindow.dismiss()
 
@@ -105,18 +170,33 @@ def invalidLogin():
     global popupWindow
     popupWindow = Popup(title="Login Error", content=show,size_hint=(None,None), size=(300,200))
     popupWindow.open()
-    #return popupWindow
-    #errorPopup(Button).bind(on_press=popupWindow.dismiss)
 
 def invalidRegister():
     show = errorPopup()
-    popupWindow = Popup(title="Email not legit", content=show,size_hint=(None,None), size=(300,200))
+    popupWindow = Popup(title="Username not allowed or is already taken", content=show,size_hint=(None,None), size=(300,200))
+    popupWindow.open()
+
+def registerComplete():
+    show = successPopup()
+    popupWindow = Popup(title="You are now Registered", content=show,size_hint=(None,None), size=(300,200))
     popupWindow.open()
 
 
 
 
+#check if file exists
+if(os.path.isfile("saved_users.txt")):
+    print("file located successfuly")
+else:
+    f = open("saved_users.txt", "w")
+    f.close()
+    print("no file found, new file was created")
 
+## Load the database
+userDatabase = Database("saved_users.txt")
+
+
+## Run the App ----------------------------------------------------------------------
 
 class PacemakerApp(App):
     def build(self):

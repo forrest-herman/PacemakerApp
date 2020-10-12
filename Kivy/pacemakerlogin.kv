@@ -1,10 +1,4 @@
 #:kivy 1.11.1
-# WindowManager:
-#     WelcomeWindow:
-#     LoginWindow:
-#     RegisterWindow:
-#     MainWindow:
-
 
 
 <WelcomeWindow>:
@@ -26,17 +20,19 @@
             
             on_release: 
                 # app.root.current = "second" if passw.text == "pace" else "main"
-                app.root.current = "loginWin"
-                root.manager.transition.direction = "up"
+                # app.root.current = "loginWin"
+                # root.manager.transition.direction = "up"
+                root.goToLogin()
                 
-
-
 
         ## Register
         Button:
             text:"Register"
             size_hint: 0.3,0.1
             pos_hint: {"center_x":0.5, "top":0.3}
+
+            on_release:
+                root.goToReg()
 
 
 <LoginWindow>:
@@ -115,34 +111,176 @@
 <RegisterWindow>:
     name: "registerWin"
 
+    firstName_Field: firstName
+    lastName_Field: lastName
+    username_Field: username
+    password_Field: password
+
+    FloatLayout:
+        size_hint: 0.4,0.7
+        pos_hint: {"center_x":0.5,"center_y":0.5}
+
+
+        BoxLayout:
+            orientation: "vertical"
+            spacing: 30
+            pos_hint: {"center_x":0.5,"center_y":0.5}
+
+            Label:
+                text: "Create Your Account"
+                halign: 'center'
+                valign: 'top'
+                font_size: 27*root.width/800
+                size_hint: 1,0.1
+
+
+            BoxLayout:
+                orientation: "vertical"
+                size_hint_y: 0.6
+                spacing: 10
+                
+
+                ## First + Last Name
+
+                GridLayout:
+                    cols: 2
+                    rows: 2
+                    spacing: [10,0]
+                    size_hint_x: 1
+                    size_hint_y: None
+                    height: 60
+
+                    Label:
+                        text: "First Name: "
+                        font_size: 15
+                        #size_hint_x: None
+                        height: 30
+                        pos_hint: {'left': 1}
+                        size_hint_x: None
+                    
+                    Label:
+                        text: "Last Name: "
+                        font_size: 15
+                        height: 30
+                        pos_hint: {'left': 1}
+                        size_hint_x: None
+
+                    TextInput:
+                        id:firstName
+                        multiline:False
+                        size_hint: 0.5, None
+                        height: 30
+
+                    TextInput:
+                        id:lastName
+                        multiline:False
+                        size_hint: 0.5, None
+                        height: 30
+                
+
+                ## Username
+
+                GridLayout:
+                    cols: 1
+                    rows: 2
+                    size_hint_x: 1
+                    size_hint_y: None
+                    height: 60
+
+                    Label:
+                        text: "Username: "
+                        font_size: 15
+                        height: 30
+                        pos_hint: {'left': 1}
+                        size_hint_x: None
+                    
+                    TextInput:
+                        id:username
+                        multiline:False
+                        size_hint: 1,None
+                        height: 30
+                
+
+
+                ## Password
+
+                GridLayout:
+                    cols: 1
+                    rows: 2
+                    size_hint_x: 1
+                    size_hint_y: None
+                    height: 60
+
+                    Label:
+                        text: "Password: "
+                        font_size: 15
+                        height: 30
+                        pos_hint: {'left': 1}
+                        size_hint_x: None
+
+                    TextInput:
+                        id: password
+                        multiline:False
+                        size_hint: 1,None
+                        height: 30
+
+            BoxLayout:
+                orientation: "vertical"
+                spacing: 10
+                size_hint_y: 0.25
+
+                Button:
+                    text:"Register"
+                    size_hint: 1,0.1
+                    on_press: root.regUser()
+
+                Button:
+                    text:"Back"
+                    size_hint: 1,0.1
+                    on_press: root.btnBack()
+
+
 
 <MainWindow>:
     name: "mainWin"
     
     currentUser: currentUser
 
-    Label:
-        id:currentUser
-        text: "Welcome, "
-    #tempUser: userDisplay
-    #tempPass: passDisplay
-
-    # Label:
-    #     id: userDisplay
-    #     id: passDisplay
-    #     text: userDisplay, passDisplay
-    
+    FloatLayout:
+        GridLayout:
+            cols: 1
+            Label:
+                id:currentUser
+                text: ""
+        
+        ## Logout Button top right
+        Button:
+            text: "Logout"
+            size_hint: 0.1,0.05
+            #pos_hint: {"right":0.85, "top":0.95}
+            pos: root.width-self.width-2,root.height-self.height-2
+            on_press: root.logout()
 
 
 
 <errorPopup>:
+    size:400,300
     Label:
-        text: "Invalid username or Password"
+        text: "Invalid username or password"
         size_hint:0.6,0.2
-        pos_hint: {"x":0.2, "top":1}
+        pos_hint: {"x":0.2, "center_y":0.7}
 
     Button:
         text:"Ok"
         size_hint:0.6,0.3
         pos_hint: {"x":0.2, "top":0.4}
         on_press: root.closePopup()
+
+<successPopup>:
+    size:400,300
+    Label:
+        text: "Success!"
+        size_hint:0.6,0.2
+        pos_hint: {"x":0.2, "center_y":0.5}
+
+    #add timer
