@@ -261,6 +261,14 @@
             pos: root.width-self.width-2,root.height-self.height-2
             on_press: root.logout()
 
+        ## Delete Account Button top left
+        Button:
+            text: "Delete Account"
+            size_hint: 0.25,0.05
+            #pos_hint: {"x":0.15, "top":0.95}
+            pos: 2,root.height-self.height-2
+            on_press: root.deleteAccount()
+
 
 
 <errorPopup>:
@@ -268,7 +276,8 @@
     Label:
         text: "Invalid username or password"
         size_hint:0.6,0.2
-        pos_hint: {"x":0.2, "center_y":0.7}
+        halign: 'center'
+        pos_hint: {"x_center":0.5, "center_y":0.7}
 
     Button:
         text:"Ok"
@@ -313,5 +322,6 @@
     size:400,300
     Label:
         text: "Success!"
+        halign: 'center'
         size_hint:0.6,0.2
-        pos_hint: {"x":0.2, "center_y":0.5}
+        pos_hint: {"x_center":0.5, "center_y":0.5}

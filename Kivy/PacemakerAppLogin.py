@@ -144,6 +144,12 @@ class MainWindow(Screen):
         signOut_Complete()
     
     ## Option to delete account!!
+    def deleteAccount(self):
+        userDatabase.remove_user(self.currentUsername)
+        manageWin.transition = FallOutTransition()
+        manageWin.transition.duration = 0.15
+        manageWin.current = "welcomeWin"
+        userDeleted()
 
 
 ## WindowManager ----------------------------------------
@@ -185,7 +191,7 @@ class successPopup(FloatLayout):
     def __init__(self, **kwargs):
         super(successPopup, self).__init__(**kwargs)
         # call dismiss_popup in 1 second
-        Clock.schedule_once(self.closePopup, 0.7)
+        Clock.schedule_once(self.closePopup, 1)
 
     def closePopup(self, timer):
         popupWindow.dismiss()
@@ -223,6 +229,11 @@ def accountLimitReached():
     popupWindow = Popup(title="Error", content=show,size_hint=(None,None), size=(300,200))
     popupWindow.open()
 
+def userDeleted():
+    show = successPopup()
+    global popupWindow
+    popupWindow = Popup(title="Account Deleted", content=show,size_hint=(None,None), size=(300,200))
+    popupWindow.open()
 
 
 

@@ -45,3 +45,9 @@ class Database:
             return (self.users[username][2] == password) ## returns true if passwords match
         else: 
             return 0
+
+    ##Remove User
+    def remove_user(self, username):
+        #print("User Removed", username)
+        del self.users[username]
+        self.save()
