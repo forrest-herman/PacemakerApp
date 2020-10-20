@@ -129,10 +129,6 @@ class RegisterWindow(Screen):
         self.username_Field.text = ""
         self.password_Field.text = ""
 
-## Mode Pop-up Window ----------------------------------------------
-class MyPopup(FloatLayout):
-    def closePopup(self):
-        popupWindow.dismiss()
 
 ## MainWindow ----------------------------------------
 
@@ -142,7 +138,7 @@ class MainWindow(Screen):
 
     
     def on_enter(self, *args):
-        self.currentUser.text = "Name: " + userDatabase.get_user(self.currentUsername)[0]
+        self.currentUser.text = "Active User: " + userDatabase.get_user(self.currentUsername)[0]
 
     def logout(self):
         #edit transition
@@ -152,7 +148,7 @@ class MainWindow(Screen):
         ## idea! popout: "Logout Successful"
         signOut_Complete()
     
-    ## Option to delete account!!
+    ## Option to delete account
     def deleteAccount(self):
         userDatabase.remove_user(self.currentUsername)
         manageWin.transition = FallOutTransition()
@@ -161,57 +157,43 @@ class MainWindow(Screen):
         userDeleted()
     
     ## Mode Popup window is displayed
-    def open_popup(self):
-        show = MyPopup()
+    def open_modeSelector(self):
+        show = modeSelectorPopup()
         global popupWindow
         popupWindow = Popup(title="Pacemaker Modes", content=show,size_hint=(None,None), size=(500,500))
         popupWindow.open()
     
 
-## WindowManager ----------------------------------------
 
-class WindowManager(ScreenManager):
-    pass
+## Declare all Popups Layout Classes ----------------------------------------------------------------------
 
-manageWin = WindowManager(transition=SlideTransition())
+## Main page popups
+class modeSelectorPopup(FloatLayout):
+    def closePopup(self):
+        popupWindow.dismiss()
 
-## Add all the pages
-manageWin.add_widget(WelcomeWindow(name="welcomeWin"))
-manageWin.add_widget(LoginWindow(name="loginWin"))
-manageWin.add_widget(RegisterWindow(name="registerWin"))
-manageWin.add_widget(MainWindow(name="mainWin"))
-
-manageWin.current = "welcomeWin"
-
-
-
-## Error Popup stuff ----------------------------------------------------------------------
-
+## Generic Errors
 class errorPopup(FloatLayout):
-    ## The following isn't working!
-    #dialogueMessage = ObjectProperty(None)
-    # def setMessage(self,message):
-    #     self.dialogueMessage.text = "Hellow"
-    
     def closePopup(self):
         popupWindow.dismiss()
 
-
-#maximum accounts reached 
-class errorMaxPopup(FloatLayout):    
+## maximum accounts reached 
+class errorMaxPopup(FloatLayout):
     def closePopup(self):
         popupWindow.dismiss()
 
-
+## Auto-timout Popup
 class successPopup(FloatLayout):
     def __init__(self, **kwargs):
         super(successPopup, self).__init__(**kwargs)
-        # call dismiss_popup in 1 second
+        # call dismiss_popup after 1 second
         Clock.schedule_once(self.closePopup, 1)
 
     def closePopup(self, timer):
         popupWindow.dismiss()
 
+
+## Initialize the Popups ------------------------------------------------------
 
 def invalidLogin():
     show = errorPopup()
@@ -238,8 +220,6 @@ def signOut_Complete():
     popupWindow.open()
 
 def accountLimitReached():
-    #errorPopup().setMessage(message = "Account Limit Reached. Only 10 accounts can be stored locally at once.")
-    #print(errorPopup().dialogueMessage.text)
     show = errorMaxPopup()
     global popupWindow
     popupWindow = Popup(title="Error", content=show,size_hint=(None,None), size=(300,200))
@@ -252,6 +232,25 @@ def userDeleted():
     popupWindow.open()
 
 
+
+
+## WindowManager --------------------------------------------
+
+class WindowManager(ScreenManager):
+    pass
+
+manageWin = WindowManager(transition=SlideTransition())
+
+## Add all the pages ------------------------------------------
+manageWin.add_widget(WelcomeWindow(name="welcomeWin"))
+manageWin.add_widget(LoginWindow(name="loginWin"))
+manageWin.add_widget(RegisterWindow(name="registerWin"))
+manageWin.add_widget(MainWindow(name="mainWin"))
+
+manageWin.current = "welcomeWin"
+
+
+## Database Details ----------------------------------------------------------------------
 
 #check if file exists
 if(os.path.isfile("saved_users.txt")):
