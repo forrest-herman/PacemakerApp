@@ -247,77 +247,91 @@
     currentUser: currentUser
 
     FloatLayout:
+        
+            
+
         GridLayout:
-            cols: 1
+            cols: 3
+            size_hint: 1,0.05
+            y: root.height-self.height-2
             Label:
                 id:currentUser
                 text: ""
+                font_size: 18
         
         ## Logout Button top right
         Button:
             text: "Logout"
             size_hint: 0.1,0.05
-            #pos_hint: {"right":0.85, "top":0.95}
             pos: root.width-self.width-2,root.height-self.height-2
             on_press: root.logout()
 
         ## Delete Account Button top left
         Button:
             text: "Delete Account"
-            size_hint: 0.25,0.05
-            #pos_hint: {"x":0.15, "top":0.95}
+            size_hint: 0.15,0.05
             pos: 2,root.height-self.height-2
             on_press: root.deleteAccount()
- 
+
+        ## Mode Selector Button
         Button:
-            text: "Open Modes"
+            text: "Choose Pacing Mode"
             size_hint: 0.25,0.05
-            pos_hint: {"x":0.6, "top":1}
-            #pos: 3,root.height-self.height-3
-            on_press: root.open_popup()
+            pos_hint: {"center_x":0.5, "top":0.8}
+            on_press: root.open_modeSelector()
 
-<MyPopup>:
+
+<modeSelectorPopup>:
     FloatLayout:
-        Button:
-            text:"Mode 1"
-            pos_hint: {"x":0.6, "top":1}
-            size_hint: 0.5, 0.2
-            
-
-        Button:
-            text:"Mode 2"
-            pos_hint: {"x":0.6, "top":0.8}
-            size_hint: 0.5, 0.2
-            
-
-        Button:
-            text:"Ok"
-            pos_hint: {"x":0.6, "top":0.4}
-            size_hint: 0.5, 0.2
-            on_release: root.closePopup()
-          
-            
+        pos_hint: {"center_x":0.5, "center_y":0.5}
         
-#<errorPopup>:
-#    #size:400,300
-#    Label:
-#        text: "Invalid username or password"
-#        size_hint:0.6,0.2
-#        halign: 'center'
-#        pos_hint: {"x_center":0.5, "center_y":0.7}
+        GridLayout:
+            rows:2
+            pos_hint: {"center_x":0.5, "center_y":0.5}
+            size_hint: 0.5, 0.9
+            spacing: 30
 
-#    Button:
-#        text:"Hey"
-#        size_hint:0.6,0.3
-#        pos_hint: {"x":0.2, "top":0.4}
-#        on_release: root.closePopup()
+            GridLayout:
+                size_hint_y: 0.8
+                rows: 5 # number of modes
+                spacing: 10
+                
+                Button:
+                    text:"AOO"
+                    ## create var to track selected mode
+
+                Button:
+                    text:"VOO"
+
+                
+                Button:
+                    text:"AAI"
+
+
+                Button:
+                    text:"VVI"
+
+
+                Button:
+                    text:"Etc."
+
+
+
+            GridLayout:
+                rows:1
+                size_hint_y: 0.2
+
+                Button:
+                    text:"Ok"
+                    #pos_hint: {"x":0.6, "top":0.4}
+                    #size_hint: 0.5, 0.2
+                    on_release: root.closePopup()
+
 
 
 <errorPopup>:
-    dialogueMessage:message
     size:400,300
     Label:
-        id: message
         text: "Invalid username or password"
         size_hint:0.6,0.2
         pos_hint: {"x":0.2, "center_y":0.7}
@@ -351,4 +365,4 @@
         text: "Success!"
         halign: 'center'
         size_hint:0.6,0.2
-        pos_hint: {"x_center":0.5, "center_y":0.5}
+        pos_hint: {"center_x":0.5, "center_y":0.5}
