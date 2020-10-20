@@ -245,6 +245,7 @@
     name: "mainWin"
     
     currentUser: currentUser
+    display_active_pacingMode:pacingMode_text
 
     FloatLayout:
         ## Current user displayed
@@ -273,11 +274,21 @@
 
         ## Main App functions here:   ----------------------------------------------------
 
+        GridLayout:
+            cols: 1
+            size_hint: 1,0.1
+            pos_hint: {"center_x":0.5,"top":0.85}
+            Label:
+                id:pacingMode_text
+                text: ""
+                font_size: 18
+
+
         ## Mode Selector Button
         Button:
             text: "Choose Pacing Mode"
-            size_hint: 0.25,0.05
-            pos_hint: {"center_x":0.5, "top":0.8}
+            size_hint: 0.25,0.1
+            pos_hint: {"center_x":0.5, "top":0.7}
             on_press: root.open_modeSelector()
 
 
@@ -299,18 +310,23 @@
                 Button:
                     text:"AOO"
                     ## create var to track selected mode
+                    on_press: 
+                        root.setPacingMode("AOO")
 
                 Button:
                     text:"VOO"
+                    on_press: 
+                        root.setPacingMode("VOO")
 
-                
                 Button:
                     text:"AAI"
-
+                    on_press: 
+                        root.setPacingMode("AAI")
 
                 Button:
                     text:"VVI"
-
+                    on_press: 
+                        root.setPacingMode("VVI")
 
                 Button:
                     text:"Etc."
@@ -323,8 +339,6 @@
 
                 Button:
                     text:"Ok"
-                    #pos_hint: {"x":0.6, "top":0.4}
-                    #size_hint: 0.5, 0.2
                     on_release: root.closePopup()
 
 
