@@ -6,12 +6,16 @@ from kivy.lang import Builder
 from kivy.uix.widget import Widget
 from kivy.properties import ObjectProperty
 from kivy.uix.label import Label
+from kivy.uix.gridlayout import GridLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import (ScreenManager, Screen, NoTransition, SlideTransition, CardTransition, SwapTransition, FadeTransition, WipeTransition, FallOutTransition, RiseInTransition)
 from kivy.graphics import Color
 from database import Database
+from kivy.uix.dropdown import DropDown
+from kivy.uix.button import Button
+from kivy.base import runTouchApp
 import os.path
 from kivy.clock import Clock
 
@@ -125,6 +129,10 @@ class RegisterWindow(Screen):
         self.username_Field.text = ""
         self.password_Field.text = ""
 
+## Mode Pop-up Window ----------------------------------------------
+class MyPopup(FloatLayout):
+    def closePopup(self):
+        popupWindow.dismiss()
 
 ## MainWindow ----------------------------------------
 
@@ -132,6 +140,7 @@ class MainWindow(Screen):
     currentUser = ObjectProperty(None)
     currentUsername = ""
 
+    
     def on_enter(self, *args):
         self.currentUser.text = "Name: " + userDatabase.get_user(self.currentUsername)[0]
 
@@ -150,7 +159,14 @@ class MainWindow(Screen):
         manageWin.transition.duration = 0.15
         manageWin.current = "welcomeWin"
         userDeleted()
-
+    
+    ## Mode Popup window is displayed
+    def open_popup(self):
+        show = MyPopup()
+        global popupWindow
+        popupWindow = Popup(title="Pacemaker Modes", content=show,size_hint=(None,None), size=(500,500))
+        popupWindow.open()
+    
 
 ## WindowManager ----------------------------------------
 
