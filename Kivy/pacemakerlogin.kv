@@ -247,9 +247,7 @@
     currentUser: currentUser
 
     FloatLayout:
-        
-            
-
+        ## Current user displayed
         GridLayout:
             cols: 3
             size_hint: 1,0.05
@@ -272,6 +270,8 @@
             size_hint: 0.15,0.05
             pos: 2,root.height-self.height-2
             on_press: root.deleteAccount()
+
+        ## Main App functions here:   ----------------------------------------------------
 
         ## Mode Selector Button
         Button:
