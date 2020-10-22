@@ -136,14 +136,16 @@ class MainWindow(Screen):
     currentUser = ObjectProperty(None)
     display_active_pacingMode = ObjectProperty(None)
     currentUsername = ""
+
+    global pacingMode
     
     def on_enter(self, *args):
         self.currentUser.text = "Active User: " + userDatabase.get_user(self.currentUsername)[0]
-        self.display_active_pacingMode.text = "Pacing Mode: "
+        self.display_active_pacingMode.text = "Pacing Mode: " + pacingMode
 
-    def reloadPage(self,pacingMode):
-        self.display_active_pacingMode.text = "Pacing Mode: " + getPacingMode()
-        print("DIsplay")
+    # def reloadPage(self,pacingMode):
+    #     self.display_active_pacingMode.text = "Pacing Mode: " + pacingMode
+    #     print("DIsplay")
 
     def logout(self):
         #edit transition
@@ -169,19 +171,34 @@ class MainWindow(Screen):
         popupWindow.open()
     
 
+
+
+pacingMode = "HLL"
+def setPacingModetext(mode):
+    global pacingMode
+    pacingMode = mode
+    print(pacingMode)
+    manageWin.current = "welcomeWin"
+    manageWin.current = "mainWin"
+
+
 ## Declare all Popups Layout Classes ----------------------------------------------------------------------
 
 ## Main page popups
 class modeSelectorPopup(FloatLayout):
-    pacingMode = ""
+    
 
     def closePopup(self):
         popupWindow.dismiss()
-        print(self.pacingMode)
+        #print(self.pacingMode)
 
     def setPacingMode(self,mode):
-        self.pacingMode = mode
-        print(self.pacingMode)
+        # self.pacingMode = mode
+        # print(self.pacingMode)
+        setPacingModetext(mode)
+        #main.reloadPage(self.pacingMode)
+        #manageWin.current = "mainWin"
+
 
     # def getPacingMode(self):
     #     print(self.pacingMode)

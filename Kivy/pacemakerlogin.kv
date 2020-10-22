@@ -312,21 +312,25 @@
                     ## create var to track selected mode
                     on_press: 
                         root.setPacingMode("AOO")
+                        root.closePopup()
 
                 Button:
                     text:"VOO"
                     on_press: 
                         root.setPacingMode("VOO")
+                        root.closePopup()
 
                 Button:
                     text:"AAI"
                     on_press: 
                         root.setPacingMode("AAI")
+                        root.closePopup()
 
                 Button:
                     text:"VVI"
                     on_press: 
                         root.setPacingMode("VVI")
+                        root.closePopup()
 
                 Button:
                     text:"Etc."
