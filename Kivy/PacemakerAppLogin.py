@@ -143,10 +143,6 @@ class MainWindow(Screen):
         self.currentUser.text = "Active User: " + userDatabase.get_user(self.currentUsername)[0]
         self.display_active_pacingMode.text = "Pacing Mode: " + pacingMode
 
-    # def reloadPage(self,pacingMode):
-    #     self.display_active_pacingMode.text = "Pacing Mode: " + pacingMode
-    #     print("DIsplay")
-
     def logout(self):
         #edit transition
         manageWin.transition = FallOutTransition()
@@ -173,7 +169,7 @@ class MainWindow(Screen):
 
 
 
-pacingMode = "HLL"
+pacingMode = "Not Set"
 def setPacingModetext(mode):
     global pacingMode
     pacingMode = mode
