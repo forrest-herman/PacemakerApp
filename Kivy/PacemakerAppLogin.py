@@ -149,6 +149,7 @@ class MainWindow(Screen):
         #edit transition
         manageWin.transition = FallOutTransition()
         manageWin.transition.duration = 0.15
+        manageWin.transition.direction = "NoTransition"
         manageWin.current = "welcomeWin"
         ## idea! popout: "Logout Successful"
         signOut_Complete()
