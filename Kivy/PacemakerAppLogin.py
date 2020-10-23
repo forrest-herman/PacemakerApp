@@ -59,6 +59,7 @@ class LoginWindow(Screen):
         ## if good...
         if(userDatabase.credentialCheck(user, password)):
             manageWin.transition = RiseInTransition()
+            manageWin.transition.duration = 0.15
             manageWin.current = "mainWin"
             MainWindow.currentUsername = user
             self.reset() ## clear the form
@@ -101,6 +102,7 @@ class RegisterWindow(Screen):
                 self.reset() ## clear the form
                 manageWin.transition = SlideTransition()
                 manageWin.transition.direction = "left"
+                manageWin.transition.duration = 0.15
                 manageWin.current = "welcomeWin"
                 registerComplete() # popup
             else:
