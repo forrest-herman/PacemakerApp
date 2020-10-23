@@ -147,7 +147,6 @@ class MainWindow(Screen):
         #edit transition
         manageWin.transition = FallOutTransition()
         manageWin.transition.duration = 0.15
-        manageWin.transition.direction = "NoTransition"
         manageWin.current = "welcomeWin"
         ## idea! popout: "Logout Successful"
         signOut_Complete()
@@ -175,6 +174,8 @@ def setPacingModetext(mode):
     global pacingMode
     pacingMode = mode
     print(pacingMode)
+    manageWin.transition.direction = "left"
+    manageWin.transition.duration = 0.01
     manageWin.current = "welcomeWin"
     manageWin.current = "mainWin"
 
