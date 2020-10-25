@@ -135,15 +135,18 @@ class RegisterWindow(Screen):
 
 class MainWindow(Screen):
     currentUser = ObjectProperty(None)
+    hardwareConnected = ObjectProperty(None)
     display_active_pacingMode = ObjectProperty(None)
     display_heartbeat_bpm = ObjectProperty(None)
     currentUsername = ""
 
+    
     global pacingMode
     global heartBPM
 
     def on_enter(self, *args):
         self.currentUser.text = "Active User: " + userDatabase.get_user(self.currentUsername)[0]
+        #self.hardwareConnected.text = "true"
         self.display_active_pacingMode.text = "Pacing Mode: " + pacingMode
         self.display_heartbeat_bpm.text = "BPM: " + str(heartBPM)
 
@@ -196,16 +199,8 @@ class modeSelectorPopup(FloatLayout):
         #print(self.pacingMode)
 
     def setPacingMode(self,mode):
-        # self.pacingMode = mode
-        # print(self.pacingMode)
         setPacingModetext(mode)
-        #main.reloadPage(self.pacingMode)
-        #manageWin.current = "mainWin"
 
-
-    # def getPacingMode(self):
-    #     print(self.pacingMode)
-    #     return self.pacingMode
 
 
 ## Generic Errors
