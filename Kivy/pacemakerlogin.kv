@@ -246,6 +246,8 @@
     
     currentUser: currentUser
     display_active_pacingMode:pacingMode_text
+    display_heartbeat_bpm:heartBPM_text
+            
 
     FloatLayout:
         ## Current user displayed
@@ -253,11 +255,12 @@
             cols: 3
             size_hint: 1,0.05
             y: root.height-self.height-2
+           
             Label:
                 id:currentUser
                 text: ""
                 font_size: 18
-        
+
         ## Logout Button top right
         Button:
             text: "Logout"
@@ -282,7 +285,16 @@
                 id:pacingMode_text
                 text: ""
                 font_size: 18
-
+        
+        ## BPM Display
+        GridLayout:
+            cols: 1
+            size_hint: 1,0.1
+            pos_hint: {"center_x":0.5,"top":0.45}
+            Label:
+                id:heartBPM_text
+                text: ""
+                font_size: 18
 
         ## Mode Selector Button
         Button:

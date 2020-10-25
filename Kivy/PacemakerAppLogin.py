@@ -18,6 +18,7 @@ from kivy.uix.button import Button
 from kivy.base import runTouchApp
 import os.path
 from kivy.clock import Clock
+import time
 
 kv = Builder.load_file("pacemakerlogin.kv")
 
@@ -135,13 +136,16 @@ class RegisterWindow(Screen):
 class MainWindow(Screen):
     currentUser = ObjectProperty(None)
     display_active_pacingMode = ObjectProperty(None)
+    display_heartbeat_bpm = ObjectProperty(None)
     currentUsername = ""
 
     global pacingMode
-    
+    global heartBPM
+
     def on_enter(self, *args):
         self.currentUser.text = "Active User: " + userDatabase.get_user(self.currentUsername)[0]
         self.display_active_pacingMode.text = "Pacing Mode: " + pacingMode
+        self.display_heartbeat_bpm.text = "BPM: " + str(heartBPM)
 
     def logout(self):
         #edit transition
@@ -167,7 +171,8 @@ class MainWindow(Screen):
         popupWindow.open()
     
 
-
+heartBPM = 100
+#change this for assignment 2
 
 pacingMode = "Not Set"
 def setPacingModetext(mode):
