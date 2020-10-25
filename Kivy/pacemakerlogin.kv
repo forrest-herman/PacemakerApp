@@ -1,6 +1,5 @@
 #:kivy 1.11.1
 
-
 <WelcomeWindow>:
     name: "welcomeWin"
 
@@ -245,7 +244,6 @@
     name: "mainWin"
     
     currentUser: currentUser
-    #hardwareConnected:hardware_indicator
     display_active_pacingMode:pacingMode_text
     display_heartbeat_bpm:heartBPM_text
 
@@ -254,7 +252,6 @@
         ## Current user displayed
         GridLayout:
             cols: 3
-            #spacing: 50
             size_hint: 0.5,0.05
             y: root.height-self.height-2
             pos_hint: {"center_x": 0.5}
@@ -269,9 +266,8 @@
                 width: 10
 
             Label:
-                #id:hardware_indicator
                 text: "\u2022"
-                color: 1,0,0,1
+                color: root.indicatorColour
                 font_size: 35
                 
 

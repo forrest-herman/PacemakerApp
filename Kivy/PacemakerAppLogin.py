@@ -5,6 +5,7 @@ from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.widget import Widget
 from kivy.properties import ObjectProperty
+from kivy.properties import ListProperty
 from kivy.uix.label import Label
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.floatlayout import FloatLayout
@@ -137,20 +138,26 @@ class RegisterWindow(Screen):
 
 class MainWindow(Screen):
     currentUser = ObjectProperty(None)
-    hardwareConnected = ObjectProperty(None)
     display_active_pacingMode = ObjectProperty(None)
     display_heartbeat_bpm = ObjectProperty(None)
     currentUsername = ""
 
+    ## Indicator for connected Hardware
+    indicatorColour = ListProperty([1,0,0,1]) ## defaults to red, becomes green if connected
     
+
     global pacingMode
     global heartBPM
 
     def on_enter(self, *args):
         self.currentUser.text = "Active User: " + userDatabase.get_user(self.currentUsername)[0]
-        #self.hardwareConnected.text = "true"
         self.display_active_pacingMode.text = "Pacing Mode: " + pacingMode
         self.display_heartbeat_bpm.text = "BPM: " + str(heartBPM)
+        global hardwareConnected
+        if(hardwareConnected):
+            self.indicatorColour = [0,1,0,1] ## green
+        else: 
+            self.indicatorColour = [1,0,0,1] ## defaults to red
 
     def logout(self):
         #edit transition
@@ -175,7 +182,7 @@ class MainWindow(Screen):
         popupWindow = Popup(title="Pacemaker Modes", content=show,size_hint=(None,None), size=(500,500))
         popupWindow.open()
     
-
+hardwareConnected = False ## set to board for assignment 2
 heartBPM = 100
 #change this for assignment 2
 
@@ -188,6 +195,10 @@ def setPacingModetext(mode):
     manageWin.transition.duration = 0.01
     manageWin.current = "welcomeWin"
     manageWin.current = "mainWin"
+
+    ##testing
+    global hardwareConnected
+    hardwareConnected = True
 
 
 ## Declare all Popups Layout Classes ----------------------------------------------------------------------
