@@ -245,19 +245,36 @@
     name: "mainWin"
     
     currentUser: currentUser
+    #hardwareConnected:hardware_indicator
     display_active_pacingMode:pacingMode_text
+    display_heartbeat_bpm:heartBPM_text
+
 
     FloatLayout:
         ## Current user displayed
         GridLayout:
             cols: 3
-            size_hint: 1,0.05
+            #spacing: 50
+            size_hint: 0.5,0.05
             y: root.height-self.height-2
+            pos_hint: {"center_x": 0.5}
+
+            Label:
+                text:""
+
             Label:
                 id:currentUser
                 text: ""
                 font_size: 18
-        
+                width: 10
+
+            Label:
+                #id:hardware_indicator
+                text: "\u2022"
+                color: 1,0,0,1
+                font_size: 35
+                
+
         ## Logout Button top right
         Button:
             text: "Logout"
@@ -282,7 +299,16 @@
                 id:pacingMode_text
                 text: ""
                 font_size: 18
-
+        
+        ## BPM Display
+        GridLayout:
+            cols: 1
+            size_hint: 1,0.1
+            pos_hint: {"center_x":0.5,"top":0.45}
+            Label:
+                id:heartBPM_text
+                text: ""
+                font_size: 18
 
         ## Mode Selector Button
         Button:
