@@ -35,7 +35,7 @@ class WelcomeWindow(Screen):
         manageWin.current = "loginWin"
     
     def goToReg(self):
-        if(len(userDatabase.users) < 10):
+        if(len(userDatabase.users) < 10):       ## there are less than 10 accounts
             manageWin.transition = SlideTransition()
             manageWin.transition.direction = "right"
             manageWin.current = "registerWin"
@@ -53,11 +53,10 @@ class LoginWindow(Screen):
 
 
     def btnLogin(self):
-        ## Check username and password for correctness
-
         user = self.nameField.text
         password = self.passwField.text
 
+        ## Check username and password for correctness
         ## if good...
         if(userDatabase.credentialCheck(user, password)):
             manageWin.transition = RiseInTransition()
@@ -205,8 +204,6 @@ def setPacingModetext(mode):
 
 ## Main page popups
 class modeSelectorPopup(FloatLayout):
-    
-
     def closePopup(self):
         popupWindow.dismiss()
         #print(self.pacingMode)
