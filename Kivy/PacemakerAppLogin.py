@@ -152,6 +152,8 @@ class MainWindow(Screen):
         self.currentUser.text = "Active User: " + userDatabase.get_user(self.currentUsername)[0]
         self.display_active_pacingMode.text = "Pacing Mode: " + pacingMode
         self.display_heartbeat_bpm.text = "BPM: " + str(heartBPM)
+
+        ## set hardware connected indicator
         global hardwareConnected
         if(hardwareConnected):
             self.indicatorColour = [0,1,0,1] ## green
@@ -183,15 +185,16 @@ class MainWindow(Screen):
 
     ## Programmable Parameters Popup window is displayed
     def open_programmableParameters(self):
+        show = programmableParametersPopup()
         global popupWindow
         popupWindow = Popup(title="Programmable Parameters", content=show,size_hint=(None,None), size=(500,500))
         popupWindow.open()
-
-
-
+    
 
 ## Global Vars and Functions ----------------------------------------------------------------------
 
+
+#change this for assignment 2
 hardwareConnected = False ## set to board for assignment 2
 heartBPM = 100
 
@@ -205,11 +208,17 @@ def setPacingModetext(mode):
     manageWin.transition.duration = 0.01
     manageWin.current = "welcomeWin"
     manageWin.current = "mainWin"
-    
-    ## For testing only: leave it until assignment 2
-    global hardwareConnected 
+    ##testing, don't remove until assignment 2
+    global hardwareConnected
     hardwareConnected = True
     ##
+
+
+
+def setLRL(num):
+    global LRL
+    LRL = num
+    print("LRL: " + LRL)
 
 def setURL(num):
     global URL
@@ -246,9 +255,6 @@ def setARP(num):
     ARP = num
     print("ARP: " + ARP)
     
-
-
-
 ## Declare all Popups Layout Classes ----------------------------------------------------------------------
 
 ## Main page popups
@@ -260,6 +266,47 @@ class modeSelectorPopup(FloatLayout):
     def setPacingMode(self,mode):
         setPacingModetext(mode)
 
+class programmableParametersPopup(FloatLayout):
+    
+    def setIndex(self, num):
+        global index
+        index = num
+
+    def open_textInput(self, title):
+        show = textInputPopup()
+        global popupWindow
+        popupWindow = Popup(title=title, content=show,size_hint=(None,None), size=(500,200))
+        popupWindow.open()
+
+    def closePopup(self):
+        popupWindow.dismiss()
+
+class textInputPopup(FloatLayout):
+
+    inputField = ObjectProperty(None)
+
+    def selectProgParam(self):
+        num = self.inputField.text
+
+        if index == 1:
+            setLRL(num)
+        elif index == 2:
+            setURL(num)
+        elif index == 3:
+            setAtrAmp(num)
+        elif index == 4:
+            setAtrPulseWidth(num)
+        elif index == 5:
+            setARP(num)
+        elif index == 6:
+            setVentAmp(num)
+        elif index == 7:
+            setVentPulseWidth(num)
+        elif index == 8:
+            setVRP(num)
+
+    def closePopup(self):
+        popupWindow.dismiss()
 
 
 ## Generic Errors
