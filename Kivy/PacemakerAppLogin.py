@@ -180,10 +180,21 @@ class MainWindow(Screen):
         global popupWindow
         popupWindow = Popup(title="Pacemaker Modes", content=show,size_hint=(None,None), size=(500,500))
         popupWindow.open()
-    
+
+    ## Programmable Parameters Popup window is displayed
+    def open_programmableParameters(self):
+        global popupWindow
+        popupWindow = Popup(title="Programmable Parameters", content=show,size_hint=(None,None), size=(500,500))
+        popupWindow.open()
+
+
+
+
+## Global Vars and Functions ----------------------------------------------------------------------
+
 hardwareConnected = False ## set to board for assignment 2
 heartBPM = 100
-#change this for assignment 2
+
 
 pacingMode = "Not Set"
 def setPacingModetext(mode):
@@ -194,10 +205,48 @@ def setPacingModetext(mode):
     manageWin.transition.duration = 0.01
     manageWin.current = "welcomeWin"
     manageWin.current = "mainWin"
-
-    ##testing
-    global hardwareConnected
+    
+    ## For testing only: leave it until assignment 2
+    global hardwareConnected 
     hardwareConnected = True
+    ##
+
+def setURL(num):
+    global URL
+    URL = num
+    print("URL: " + URL)
+
+def setAtrAmp(num):
+    global AtrAmp
+    AtrAmp = num
+    print("AtrAmp: " + AtrAmp)
+    
+def setAtrPulseWidth(num):
+    global AtrPulseWidth
+    AtrPulseWidth = num
+    print("AtrPulseWidth: " + AtrPulseWidth)
+    
+def setVentAmp(num):
+    global VentAmp
+    VentAmp = num
+    print("VentAmp: " + VentAmp)
+    
+def setVentPulseWidth(num):
+    global VentPulseWidth
+    VentPulseWidth = num
+    print("VentPulseWidth: " + VentPulseWidth)
+    
+def setVRP(num):
+    global VRP
+    VRP = num
+    print("VRP: " + VRP)
+    
+def setARP(num):
+    global ARP
+    ARP = num
+    print("ARP: " + ARP)
+    
+
 
 
 ## Declare all Popups Layout Classes ----------------------------------------------------------------------
