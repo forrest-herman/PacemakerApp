@@ -295,16 +295,6 @@
                 id:pacingMode_text
                 text: ""
                 font_size: 18
-        
-        ## BPM Display
-        GridLayout:
-            cols: 1
-            size_hint: 1,0.1
-            pos_hint: {"center_x":0.5,"top":0.45}
-            Label:
-                id:heartBPM_text
-                text: ""
-                font_size: 18
 
         ## Mode Selector Button
         Button:
@@ -313,6 +303,22 @@
             pos_hint: {"center_x":0.5, "top":0.7}
             on_press: root.open_modeSelector()
 
+        ## BPM Display
+        GridLayout:
+            cols: 1
+            size_hint: 1,0.1
+            pos_hint: {"center_x":0.5,"top":0.55}
+            Label:
+                id:heartBPM_text
+                text: ""
+                font_size: 18
+
+        ## Programmable Parameters Button
+        Button:
+            text: "Change Programmable Parameters"
+            size_hint: 0.4,0.1
+            pos_hint: {"center_x":0.5, "top":0.4}
+            on_press: root.open_programmableParameters()
 
 <modeSelectorPopup>:
     FloatLayout:
@@ -366,7 +372,106 @@
                     text:"Cancel"
                     on_release: root.closePopup()
 
+<programmableParametersPopup>:
+    FloatLayout:
+        pos_hint: {"center_x":0.5, "center_y":0.5}
+        
+        GridLayout:
+            rows:2
+            pos_hint: {"center_x":0.5, "center_y":0.5}
+            size_hint: 0.5, 1
+            spacing: 30
 
+            GridLayout:
+                size_hint_y: 1
+                rows: 8 # number of modes
+                spacing: 8
+                
+                Button:
+                    text:"LRL"
+                    on_press: 
+                        root.setIndex(1) #index to keep track of which button was pressed
+                        root.open_textInput("Please enter desired LRL value")
+
+                Button:
+                    text:"URL"
+                    on_press: 
+                        root.setIndex(2) #index to keep track of which button was pressed
+                        root.open_textInput("Please enter desired URL value")
+
+                Button:
+                    text:"Atrial Amplitude"
+                    on_press: 
+                        root.setIndex(3) #index to keep track of which button was pressed
+                        root.open_textInput("Please enter desired Atrial Amplitude")
+
+                Button:
+                    text:"Atrial Pulse Width"
+                    on_press: 
+                        root.setIndex(4) #index to keep track of which button was pressed
+                        root.open_textInput("Please enter desired Atrial Pulse Width")
+
+                Button:
+                    text:"ARP"
+                    on_press: 
+                        root.setIndex(5) #index to keep track of which button was pressed
+                        root.open_textInput("Please enter desired ARP value")
+
+                Button:
+                    text:"Ventrical Amplitude"
+                    on_press: 
+                        root.setIndex(6) #index to keep track of which button was pressed
+                        root.open_textInput("Please enter desired Ventrical Amplitude")
+
+                Button:
+                    text:"Ventrical Pulse Width"
+                    on_press: 
+                        root.setIndex(7) #index to keep track of which button was pressed
+                        root.open_textInput("Please enter desired Ventrical Pulse Width")
+
+                Button:
+                    text:"VRP"
+                    on_press: 
+                        root.setIndex(8) #index to keep track of which button was pressed
+                        root.open_textInput("Please enter desired VRP value")
+                
+
+
+            GridLayout:
+                rows:1
+                size_hint_y: 0.2
+
+                Button:
+                    text:"Done"
+                    on_press: root.closePopup()
+
+<textInputPopup>:
+
+    inputField: textIn
+
+    FloatLayout:
+        pos_hint: {"center_x":0.5, "center_y":0.5}
+        
+        GridLayout:
+            rows:2
+            pos_hint: {"center_x":0.5, "center_y":0.5}
+            size_hint: 0.5, 0.9
+            spacing: 30
+
+            GridLayout:
+                size_hint_y: 0.8
+                rows: 2 
+                spacing: 10
+    
+                TextInput:
+                    id:textIn
+                    multiline:False
+
+                Button:
+                    text:"Set Value"
+                    on_release: 
+                        root.selectProgParam()
+                        root.closePopup()
 
 <errorPopup>:
     size:400,300

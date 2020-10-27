@@ -181,10 +181,17 @@ class MainWindow(Screen):
         global popupWindow
         popupWindow = Popup(title="Pacemaker Modes", content=show,size_hint=(None,None), size=(500,500))
         popupWindow.open()
+
+    ## Programmable Parameters Popup window is displayed
+    def open_programmableParameters(self):
+        show = programmableParametersPopup()
+        global popupWindow
+        popupWindow = Popup(title="Programmable Parameters", content=show,size_hint=(None,None), size=(500,500))
+        popupWindow.open()
     
-hardwareConnected = False ## set to board for assignment 2
-heartBPM = 100
-#change this for assignment 2
+    hardwareConnected = False ## set to board for assignment 2
+    heartBPM = 100
+    #change this for assignment 2
 
 pacingMode = "Not Set"
 def setPacingModetext(mode):
@@ -196,17 +203,57 @@ def setPacingModetext(mode):
     manageWin.current = "welcomeWin"
     manageWin.current = "mainWin"
 
-    ##testing
-    global hardwareConnected
-    hardwareConnected = True
+##testing
+global hardwareConnected
+hardwareConnected = True
 
+ 
 
+def setLRL(num):
+    global LRL
+    LRL = num
+    print("LRL: " + LRL)
+
+def setURL(num):
+    global URL
+    URL = num
+    print("URL: " + URL)
+
+def setAtrAmp(num):
+    global AtrAmp
+    AtrAmp = num
+    print("AtrAmp: " + AtrAmp)
+    
+def setAtrPulseWidth(num):
+    global AtrPulseWidth
+    AtrPulseWidth = num
+    print("AtrPulseWidth: " + AtrPulseWidth)
+    
+def setVentAmp(num):
+    global VentAmp
+    VentAmp = num
+    print("VentAmp: " + VentAmp)
+    
+def setVentPulseWidth(num):
+    global VentPulseWidth
+    VentPulseWidth = num
+    print("VentPulseWidth: " + VentPulseWidth)
+    
+def setVRP(num):
+    global VRP
+    VRP = num
+    print("VRP: " + VRP)
+    
+def setARP(num):
+    global ARP
+    ARP = num
+    print("ARP: " + ARP)
+    
 ## Declare all Popups Layout Classes ----------------------------------------------------------------------
 
 ## Main page popups
 class modeSelectorPopup(FloatLayout):
     
-
     def closePopup(self):
         popupWindow.dismiss()
         #print(self.pacingMode)
@@ -214,6 +261,47 @@ class modeSelectorPopup(FloatLayout):
     def setPacingMode(self,mode):
         setPacingModetext(mode)
 
+class programmableParametersPopup(FloatLayout):
+    
+    def setIndex(self, num):
+        global index
+        index = num
+
+    def open_textInput(self, title):
+        show = textInputPopup()
+        global popupWindow
+        popupWindow = Popup(title=title, content=show,size_hint=(None,None), size=(500,200))
+        popupWindow.open()
+
+    def closePopup(self):
+        popupWindow.dismiss()
+
+class textInputPopup(FloatLayout):
+
+    inputField = ObjectProperty(None)
+
+    def selectProgParam(self):
+        num = self.inputField.text
+
+        if index == 1:
+            setLRL(num)
+        elif index == 2:
+            setURL(num)
+        elif index == 3:
+            setAtrAmp(num)
+        elif index == 4:
+            setAtrPulseWidth(num)
+        elif index == 5:
+            setARP(num)
+        elif index == 6:
+            setVentAmp(num)
+        elif index == 7:
+            setVentPulseWidth(num)
+        elif index == 8:
+            setVRP(num)
+
+    def closePopup(self):
+        popupWindow.dismiss()
 
 
 ## Generic Errors
