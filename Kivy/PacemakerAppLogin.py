@@ -153,6 +153,8 @@ class MainWindow(Screen):
         self.currentUser.text = "Active User: " + userDatabase.get_user(self.currentUsername)[0]
         self.display_active_pacingMode.text = "Pacing Mode: " + pacingMode
         self.display_heartbeat_bpm.text = "BPM: " + str(heartBPM)
+
+        ## set hardware connected indicator
         global hardwareConnected
         if(hardwareConnected):
             self.indicatorColour = [0,1,0,1] ## green
@@ -189,9 +191,14 @@ class MainWindow(Screen):
         popupWindow = Popup(title="Programmable Parameters", content=show,size_hint=(None,None), size=(500,500))
         popupWindow.open()
     
-    hardwareConnected = False ## set to board for assignment 2
-    heartBPM = 100
-    #change this for assignment 2
+
+## Global Vars and Functions ----------------------------------------------------------------------
+
+
+#change this for assignment 2
+hardwareConnected = False ## set to board for assignment 2
+heartBPM = 100
+
 
 pacingMode = "Not Set"
 def setPacingModetext(mode):
@@ -202,12 +209,12 @@ def setPacingModetext(mode):
     manageWin.transition.duration = 0.01
     manageWin.current = "welcomeWin"
     manageWin.current = "mainWin"
+    ##testing, don't remove until assignment 2
+    global hardwareConnected
+    hardwareConnected = True
+    ##
 
-##testing
-global hardwareConnected
-hardwareConnected = True
 
- 
 
 def setLRL(num):
     global LRL
