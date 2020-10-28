@@ -254,14 +254,15 @@ def setARP(num):
     global ARP
     ARP = num
     print("ARP: " + ARP)
-    
+
+
+
 ## Declare all Popups Layout Classes ----------------------------------------------------------------------
 
 ## Main page popups
 class modeSelectorPopup(FloatLayout):
     def closePopup(self):
         popupWindow.dismiss()
-        #print(self.pacingMode)
 
     def setPacingMode(self,mode):
         setPacingModetext(mode)
@@ -274,9 +275,9 @@ class programmableParametersPopup(FloatLayout):
 
     def open_textInput(self, title):
         show = textInputPopup()
-        global popupWindow
-        popupWindow = Popup(title=title, content=show,size_hint=(None,None), size=(500,200))
-        popupWindow.open()
+        global popupWindow_editParameter
+        popupWindow_editParameter = Popup(title=title, content=show,size_hint=(None,None), size=(500,200))
+        popupWindow_editParameter.open()
 
     def closePopup(self):
         popupWindow.dismiss()
@@ -306,7 +307,7 @@ class textInputPopup(FloatLayout):
             setVRP(num)
 
     def closePopup(self):
-        popupWindow.dismiss()
+        popupWindow_editParameter.dismiss()
 
 
 ## Generic Errors

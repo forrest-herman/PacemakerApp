@@ -375,15 +375,17 @@
 <programmableParametersPopup>:
     FloatLayout:
         pos_hint: {"center_x":0.5, "center_y":0.5}
+        #size_hint: 0.7,0.9
         
         GridLayout:
             rows:2
             pos_hint: {"center_x":0.5, "center_y":0.5}
             size_hint: 0.5, 1
             spacing: 30
+            padding: 20
 
             GridLayout:
-                size_hint_y: 1
+                size_hint_y: 0.9
                 rows: 8 # number of modes
                 spacing: 8
                 
