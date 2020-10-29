@@ -204,8 +204,7 @@ def setPacingModetext(mode):
     global pacingMode
     pacingMode = mode
     print(pacingMode)
-    manageWin.transition.direction = "left"
-    manageWin.transition.duration = 0.01
+    manageWin.transition = NoTransition()
     manageWin.current = "welcomeWin"
     manageWin.current = "mainWin"
     ##testing, don't remove until assignment 2
