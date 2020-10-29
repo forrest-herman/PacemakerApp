@@ -149,13 +149,14 @@ class MainWindow(Screen):
 
     display_heartbeat_bpm = ObjectProperty(None) ## in progress
 
-    currentUsername = ""
+    currentUsername = "" ## initialize the local variable, takes it's value from loginWindow btnLogin
 
     ## Indicator for connected Hardware
     indicatorColour = ListProperty([1,0,0,1]) ## defaults to red, becomes green if connected
     
     global pacingMode
-    global heartBPM
+    global heartBPM ####
+    global hardwareConnected
 
     def on_enter(self, *args):
         self.currentUser.text = "Active User: " + userDatabase.get_user(self.currentUsername)[0]
@@ -163,7 +164,6 @@ class MainWindow(Screen):
         self.display_heartbeat_bpm.text = "BPM: " + str(heartBPM)
 
         ## set hardware connected indicator
-        global hardwareConnected
         if(hardwareConnected):
             self.indicatorColour = [0,1,0,1] ## green
         else: 
@@ -280,6 +280,8 @@ class successPopup(FloatLayout):
         popupWindow.dismiss()
 
 
+
+
 ## Global Vars and Functions ----------------------------------------------------------------------
 
 
@@ -296,10 +298,11 @@ def setPacingModetext(mode):
     manageWin.transition = NoTransition()
     manageWin.current = "welcomeWin"
     manageWin.current = "mainWin"
-    ##testing, don't remove until assignment 2
+
+    ##testing, for demo purpose only. remove for assignment 2
     global hardwareConnected
     hardwareConnected = True
-    ##
+    ## testing end
 
 
 #set programmable parameters
