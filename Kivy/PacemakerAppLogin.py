@@ -174,7 +174,7 @@ class MainWindow(Screen):
         manageWin.transition = FallOutTransition()
         manageWin.transition.duration = 0.15
         manageWin.current = "welcomeWin"
-        ## idea! popout: "Logout Successful"
+        ## popup "Logout Successful"
         signOut_Complete()
     
     ## Option to delete account
@@ -199,69 +199,6 @@ class MainWindow(Screen):
         popupWindow = Popup(title="Programmable Parameters", content=show,size_hint=(None,None), size=(500,500))
         popupWindow.open()
     
-
-## Global Vars and Functions ----------------------------------------------------------------------
-
-
-#change this for assignment 2
-hardwareConnected = False ## set to board for assignment 2
-heartBPM = 100
-
-
-pacingMode = "Not Set"
-def setPacingModetext(mode):
-    global pacingMode
-    pacingMode = mode
-    print(pacingMode)
-    manageWin.transition = NoTransition()
-    manageWin.current = "welcomeWin"
-    manageWin.current = "mainWin"
-    ##testing, don't remove until assignment 2
-    global hardwareConnected
-    hardwareConnected = True
-    ##
-
-
-#set programmable parameters
-def setLRL(num):
-    global LRL
-    LRL = num
-    print("LRL: " + LRL)
-
-def setURL(num):
-    global URL
-    URL = num
-    print("URL: " + URL)
-
-def setAtrAmp(num):
-    global AtrAmp
-    AtrAmp = num
-    print("AtrAmp: " + AtrAmp)
-    
-def setAtrPulseWidth(num):
-    global AtrPulseWidth
-    AtrPulseWidth = num
-    print("AtrPulseWidth: " + AtrPulseWidth)
-    
-def setVentAmp(num):
-    global VentAmp
-    VentAmp = num
-    print("VentAmp: " + VentAmp)
-    
-def setVentPulseWidth(num):
-    global VentPulseWidth
-    VentPulseWidth = num
-    print("VentPulseWidth: " + VentPulseWidth)
-    
-def setVRP(num):
-    global VRP
-    VRP = num
-    print("VRP: " + VRP)
-    
-def setARP(num):
-    global ARP
-    ARP = num
-    print("ARP: " + ARP)
 
 
 ## Declare all Popups Layout Classes ----------------------------------------------------------------------
@@ -341,6 +278,73 @@ class successPopup(FloatLayout):
 
     def closePopup(self, timer):
         popupWindow.dismiss()
+
+
+## Global Vars and Functions ----------------------------------------------------------------------
+
+
+#change this for assignment 2
+hardwareConnected = False ## set to board for assignment 2
+heartBPM = 100 ## temporary
+
+
+pacingMode = "Not Set"
+def setPacingModetext(mode):
+    global pacingMode
+    pacingMode = mode
+    print(pacingMode)
+    manageWin.transition = NoTransition()
+    manageWin.current = "welcomeWin"
+    manageWin.current = "mainWin"
+    ##testing, don't remove until assignment 2
+    global hardwareConnected
+    hardwareConnected = True
+    ##
+
+
+#set programmable parameters
+def setLRL(num):
+    global LRL
+    LRL = num
+    print("LRL: " + LRL)
+
+def setURL(num):
+    global URL
+    URL = num
+    print("URL: " + URL)
+
+def setAtrAmp(num):
+    global AtrAmp
+    AtrAmp = num
+    print("AtrAmp: " + AtrAmp)
+    
+def setAtrPulseWidth(num):
+    global AtrPulseWidth
+    AtrPulseWidth = num
+    print("AtrPulseWidth: " + AtrPulseWidth)
+    
+def setVentAmp(num):
+    global VentAmp
+    VentAmp = num
+    print("VentAmp: " + VentAmp)
+    
+def setVentPulseWidth(num):
+    global VentPulseWidth
+    VentPulseWidth = num
+    print("VentPulseWidth: " + VentPulseWidth)
+    
+def setVRP(num):
+    global VRP
+    VRP = num
+    print("VRP: " + VRP)
+    
+def setARP(num):
+    global ARP
+    ARP = num
+    print("ARP: " + ARP)
+
+
+
 
 
 ## Initialize the Popups ------------------------------------------------------
