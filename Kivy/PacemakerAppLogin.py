@@ -214,7 +214,7 @@ def setPacingModetext(mode):
     ##
 
 
-
+#set programmable parameters
 def setLRL(num):
     global LRL
     LRL = num
@@ -256,7 +256,6 @@ def setARP(num):
     print("ARP: " + ARP)
 
 
-
 ## Declare all Popups Layout Classes ----------------------------------------------------------------------
 
 ## Main page popups
@@ -267,12 +266,15 @@ class modeSelectorPopup(FloatLayout):
     def setPacingMode(self,mode):
         setPacingModetext(mode)
 
+# Popup for programmableParameterPopup
 class programmableParametersPopup(FloatLayout):
     
+    # Store the index variable to keep track of which parameter to be changed
     def setIndex(self, num):
         global index
         index = num
 
+    # Open popup for text input
     def open_textInput(self, title):
         show = textInputPopup()
         global popupWindow_editParameter
@@ -282,10 +284,12 @@ class programmableParametersPopup(FloatLayout):
     def closePopup(self):
         popupWindow.dismiss()
 
+# Popup for text input
 class textInputPopup(FloatLayout):
 
     inputField = ObjectProperty(None)
 
+    # Check which parameter is being changed and set it to the text inputted
     def selectProgParam(self):
         num = self.inputField.text
 

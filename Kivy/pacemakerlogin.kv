@@ -386,7 +386,7 @@
 
             GridLayout:
                 size_hint_y: 0.9
-                rows: 8 # number of modes
+                rows: 8 # number of programmable parameters
                 spacing: 8
                 
                 Button:
@@ -464,11 +464,13 @@
                 size_hint_y: 0.8
                 rows: 2 
                 spacing: 10
-    
+
+                # Text input
                 TextInput:
                     id:textIn
                     multiline:False
 
+                # Input values from text field
                 Button:
                     text:"Set Value"
                     on_release: 
