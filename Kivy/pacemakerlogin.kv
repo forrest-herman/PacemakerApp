@@ -245,7 +245,17 @@
     
     currentUser: currentUser
     display_active_pacingMode:pacingMode_text
+
     display_heartbeat_bpm:heartBPM_text
+    display_LRL_parameter:LRL_parameterText
+    display_URL_parameter:URL_parameterText
+    display_AtrAmp_parameter:AtrAmp_parameterText
+    display_VentAmp_parameter:VentAmp_parameterText
+    display_AtrPulseWidth_parameter:AtrPulseWidth_parameterText
+    display_VentPulseWidth_parameter:VentPulseWidth_parameterText
+    display_ARP_parameter:ARP_parameterText
+    display_VRP_parameter:VRP_parameterText
+
 
 
     FloatLayout:
@@ -287,38 +297,119 @@
 
         ## Main App functions here:   ----------------------------------------------------
 
+        # Pacing mode details
         GridLayout:
-            cols: 1
+            cols: 2
             size_hint: 1,0.1
             pos_hint: {"center_x":0.5,"top":0.85}
+            padding: 70,0
+            spacing: 30
             Label:
                 id:pacingMode_text
                 text: ""
                 font_size: 18
 
-        ## Mode Selector Button
-        Button:
-            text: "Choose Pacing Mode"
-            size_hint: 0.25,0.1
-            pos_hint: {"center_x":0.5, "top":0.7}
-            on_press: root.open_modeSelector()
-
-        ## BPM Display
-        GridLayout:
-            cols: 1
-            size_hint: 1,0.1
-            pos_hint: {"center_x":0.5,"top":0.55}
-            Label:
-                id:heartBPM_text
-                text: ""
-                font_size: 18
+            ## Mode Selector Button
+            Button:
+                text: "Choose Pacing Mode"
+                pos_hint: {"center_x":0.5,"top":0.85}
+                on_press: root.open_modeSelector()
 
         ## Programmable Parameters Button
         Button:
             text: "Change Programmable Parameters"
             size_hint: 0.4,0.1
-            pos_hint: {"center_x":0.5, "top":0.4}
+            pos_hint: {"center_x":0.5, "top":0.6}
             on_press: root.open_programmableParameters()
+
+
+        ## Display all programmable parameters -------------------------------
+        
+        GridLayout:
+            cols: 2
+            size_hint: 0.85,0.3
+            pos_hint: {"center_x":0.5,"top":0.45}
+            spacing: 20,0
+        
+            Label:
+                id:URL_parameterText
+                text: ""
+                font_size: 18
+                halign: 'left'
+                pos_hint: {'x': 0}
+                size_hint_x: 0.5
+                background_color: 1, 1, 1, 1
+
+            Label:
+                id:LRL_parameterText
+                text: ""
+                font_size: 18
+                halign: 'left'
+                pos_hint: {'x': 0}
+                size_hint_x: 0.5
+                background_color: 0, 1, 1, 1
+
+            Label:
+                id:AtrAmp_parameterText
+                text: ""
+                font_size: 18
+                halign: 'left'
+                pos_hint: {'x': 0}
+                size_hint_x: 0.5
+
+            Label:
+                id:VentAmp_parameterText
+                text: ""
+                font_size: 18
+                halign: 'left'
+                pos_hint: {'x': 0}
+                size_hint_x: 0.5
+
+            Label:
+                id:AtrPulseWidth_parameterText
+                text: ""
+                font_size: 18
+                halign: 'left'
+                pos_hint: {'x': 0}
+                size_hint_x: 0.5
+
+            Label:
+                id:VentPulseWidth_parameterText
+                text: ""
+                font_size: 18
+                halign: 'left'
+                pos_hint: {'x': 0}
+                size_hint_x: 0.5
+
+
+            Label:
+                id:ARP_parameterText
+                text: ""
+                font_size: 18
+                halign: 'left'
+                pos_hint: {'x': 0}
+                size_hint_x: 0.5
+
+
+            Label:
+                id:VRP_parameterText
+                text: ""
+                font_size: 18
+                halign: 'left'
+                pos_hint: {'x': 0}
+                size_hint_x: 0.5
+
+
+        ## BPM Display
+        GridLayout:
+            pos_hint: {"center_x":0.5, "top":0.3}
+            Label:
+                id:heartBPM_text
+                text: ""
+                font_size: 18
+                halign: 'center'
+
+                
 
 <modeSelectorPopup>:
     FloatLayout:

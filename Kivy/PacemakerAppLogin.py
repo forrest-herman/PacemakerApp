@@ -148,20 +148,45 @@ class MainWindow(Screen):
     display_active_pacingMode = ObjectProperty(None)
 
     display_heartbeat_bpm = ObjectProperty(None) ## in progress
+    display_LRL_parameter = ObjectProperty(None)
+    display_URL_parameter = ObjectProperty(None)
+    display_AtrAmp_parameter = ObjectProperty(None)
+    display_VentAmp_parameter = ObjectProperty(None)
+    display_AtrPulseWidth_parameter = ObjectProperty(None)
+    display_VentPulseWidth_parameter = ObjectProperty(None)
+    display_VRP_parameter = ObjectProperty(None)
+    display_ARP_parameter = ObjectProperty(None)
+
 
     currentUsername = "" ## initialize the local variable, takes it's value from loginWindow btnLogin
 
     ## Indicator for connected Hardware
     indicatorColour = ListProperty([1,0,0,1]) ## defaults to red, becomes green if connected
     
-    global pacingMode
-    global heartBPM ####
+    global pacingMode, LRL, URL, AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, VRP, ARP
+    pacingMode, LRL, URL, AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, VRP, ARP = 9*["Not Set"]
+
+    global heartBPM #### in progress
     global hardwareConnected
+    #change this for assignment 2
+    hardwareConnected = False ## set to board for assignment 2
+    heartBPM = 100 ## temporary
 
     def on_enter(self, *args):
+        ##initialize the text labels
         self.currentUser.text = "Active User: " + userDatabase.get_user(self.currentUsername)[0]
         self.display_active_pacingMode.text = "Pacing Mode: " + pacingMode
         self.display_heartbeat_bpm.text = "BPM: " + str(heartBPM)
+        self.display_LRL_parameter.text = "Lower Rate Limit: " + LRL
+        self.display_URL_parameter.text = "Upper Rate Limit: " + URL
+        self.display_AtrAmp_parameter.text = "Atrium Aplitude: " + AtrAmp
+        self.display_VentAmp_parameter.text = "Ventricle Amplitude: " + VentAmp
+        self.display_AtrPulseWidth_parameter.text = "AtrPulseWidth: " + AtrPulseWidth
+        self.display_VentPulseWidth_parameter.text = "VentPulseWidth: " + VentPulseWidth
+        self.display_ARP_parameter.text = "Atrium Refractory Period : " + ARP
+        self.display_VRP_parameter.text = "Ventricular Refractory Period : " + VRP
+        
+
 
         ## set hardware connected indicator
         if(hardwareConnected):
@@ -228,6 +253,9 @@ class programmableParametersPopup(FloatLayout):
 
     def closePopup(self):
         popupWindow.dismiss()
+        manageWin.transition = NoTransition()
+        manageWin.current = "welcomeWin"
+        manageWin.current = "mainWin"
 
 # Popup for text input
 class textInputPopup(FloatLayout):
@@ -257,6 +285,9 @@ class textInputPopup(FloatLayout):
 
     def closePopup(self):
         popupWindow_editParameter.dismiss()
+        manageWin.transition = NoTransition()
+        manageWin.current = "welcomeWin"
+        manageWin.current = "mainWin"
 
 
 ## Generic Errors
@@ -285,12 +316,6 @@ class successPopup(FloatLayout):
 ## Global Vars and Functions ----------------------------------------------------------------------
 
 
-#change this for assignment 2
-hardwareConnected = False ## set to board for assignment 2
-heartBPM = 100 ## temporary
-
-
-pacingMode = "Not Set"
 def setPacingModetext(mode):
     global pacingMode
     pacingMode = mode
