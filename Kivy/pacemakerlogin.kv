@@ -454,28 +454,37 @@
     FloatLayout:
         pos_hint: {"center_x":0.5, "center_y":0.5}
         
+        # GridLayout:
+        #     rows:2
+        #     pos_hint: {"center_x":0.5, "center_y":0.4}
+        #     size_hint: 0.5, 0.9
+        #     spacing: 30
+
         GridLayout:
-            rows:2
+            size_hint: 0.6, 0.9
             pos_hint: {"center_x":0.5, "center_y":0.5}
-            size_hint: 0.5, 0.9
-            spacing: 30
+            rows: 3 
+            spacing: 10
+            height: 20
+            padding: 0,35
 
-            GridLayout:
-                size_hint_y: 0.8
-                rows: 2 
-                spacing: 10
+            # Text input
+            TextInput:
+                id:textIn
+                multiline:False
 
-                # Text input
-                TextInput:
-                    id:textIn
-                    multiline:False
-
-                # Input values from text field
-                Button:
-                    text:"Set Value"
-                    on_release: 
-                        root.selectProgParam()
-                        root.closePopup()
+            # Input values from text field
+            Button:
+                text:"Set Value"
+                on_release: 
+                    root.selectProgParam()
+                    root.closePopup()
+            
+            # Cancel
+            Button:
+                text:"Cancel"
+                on_release:
+                    root.closePopup()
 
 <errorPopup>:
     size:400,300

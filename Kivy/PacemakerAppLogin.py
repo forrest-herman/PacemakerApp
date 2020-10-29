@@ -146,13 +146,14 @@ class RegisterWindow(Screen):
 class MainWindow(Screen):
     currentUser = ObjectProperty(None)
     display_active_pacingMode = ObjectProperty(None)
-    display_heartbeat_bpm = ObjectProperty(None)
+
+    display_heartbeat_bpm = ObjectProperty(None) ## in progress
+
     currentUsername = ""
 
     ## Indicator for connected Hardware
     indicatorColour = ListProperty([1,0,0,1]) ## defaults to red, becomes green if connected
     
-
     global pacingMode
     global heartBPM
 
@@ -285,7 +286,7 @@ class programmableParametersPopup(FloatLayout):
     def open_textInput(self, title):
         show = textInputPopup()
         global popupWindow_editParameter
-        popupWindow_editParameter = Popup(title=title, content=show,size_hint=(None,None), size=(500,200))
+        popupWindow_editParameter = Popup(title=title, content=show,size_hint=(None,None), size=(350,300))
         popupWindow_editParameter.open()
 
     def closePopup(self):
