@@ -96,7 +96,8 @@ class RegisterWindow(Screen):
         username = self.username_Field.text
         password = self.password_Field.text
 
-        if (self.notEmpty(username, fname, lname, password) and self.noBadChars(username, fname, lname, password)):  ##### add check for forbitten characters, ie: ";" ?????
+        ## check for non empty strings and no forbitten characters, ie: ";"
+        if (self.notEmpty(username, fname, lname, password) and self.noBadChars(username, fname, lname, password)): 
             ## register user in database
             if(userDatabase.add_user(username, fname, lname, password) == 1):
                 ## user added succesfully
