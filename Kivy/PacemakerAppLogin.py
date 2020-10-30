@@ -183,8 +183,8 @@ class MainWindow(Screen):
         self.display_VentAmp_parameter.text = "Ventricle Amplitude: " + VentAmp
         self.display_AtrPulseWidth_parameter.text = "AtrPulseWidth: " + AtrPulseWidth
         self.display_VentPulseWidth_parameter.text = "VentPulseWidth: " + VentPulseWidth
-        self.display_ARP_parameter.text = "Atrium Refractory Period : " + ARP
-        self.display_VRP_parameter.text = "Ventricular Refractory Period : " + VRP
+        self.display_ARP_parameter.text = "Atrium Refractory Period: " + ARP
+        self.display_VRP_parameter.text = "Ventricular Refractory Period: " + VRP
         
 
 
