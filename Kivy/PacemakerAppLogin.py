@@ -147,7 +147,6 @@ class MainWindow(Screen):
     currentUser = ObjectProperty(None)
     display_active_pacingMode = ObjectProperty(None)
 
-    display_heartbeat_bpm = ObjectProperty(None) ## in progress
     display_LRL_parameter = ObjectProperty(None)
     display_URL_parameter = ObjectProperty(None)
     display_AtrAmp_parameter = ObjectProperty(None)
@@ -156,6 +155,8 @@ class MainWindow(Screen):
     display_VentPulseWidth_parameter = ObjectProperty(None)
     display_VRP_parameter = ObjectProperty(None)
     display_ARP_parameter = ObjectProperty(None)
+
+    #for later ### display_heartbeat_bpm = ObjectProperty(None) ## in progress
 
 
     currentUsername = "" ## initialize the local variable, takes it's value from loginWindow btnLogin
@@ -176,7 +177,6 @@ class MainWindow(Screen):
         ##initialize the text labels
         self.currentUser.text = "Active User: " + userDatabase.get_user(self.currentUsername)[0]
         self.display_active_pacingMode.text = "Pacing Mode: " + pacingMode
-        self.display_heartbeat_bpm.text = "BPM: " + str(heartBPM)
         self.display_LRL_parameter.text = "Lower Rate Limit: " + LRL
         self.display_URL_parameter.text = "Upper Rate Limit: " + URL
         self.display_AtrAmp_parameter.text = "Atrium Aplitude: " + AtrAmp
@@ -185,6 +185,7 @@ class MainWindow(Screen):
         self.display_VentPulseWidth_parameter.text = "VentPulseWidth: " + VentPulseWidth
         self.display_ARP_parameter.text = "Atrium Refractory Period: " + ARP
         self.display_VRP_parameter.text = "Ventricular Refractory Period: " + VRP
+        #self.display_heartbeat_bpm.text = "BPM: " + str(heartBPM) ####  for later 
         
 
 
@@ -330,45 +331,45 @@ def setPacingModetext(mode):
     ## testing end
 
 
-#set programmable parameters
+## Set programmable parameters
 def setLRL(num):
-    global LRL
-    LRL = num
+    global LRL  ## double
+    LRL = num + " BPM"   ##bpm rate between roughly 30 and 100
     print("LRL: " + LRL)
 
 def setURL(num):
-    global URL
-    URL = num
+    global URL  ## double
+    URL = num + " BPM"   ##bpm rate between roughly 80 and 150
     print("URL: " + URL)
 
 def setAtrAmp(num):
     global AtrAmp
-    AtrAmp = num
+    AtrAmp = num + " V"   ##voltage between 0 and 5V
     print("AtrAmp: " + AtrAmp)
     
 def setAtrPulseWidth(num):
     global AtrPulseWidth
-    AtrPulseWidth = num
+    AtrPulseWidth = num + " ms"      ##time between ~1 to 30 msec
     print("AtrPulseWidth: " + AtrPulseWidth)
     
 def setVentAmp(num):
     global VentAmp
-    VentAmp = num
+    VentAmp = num + " V"   ##voltage between 0 and 5V
     print("VentAmp: " + VentAmp)
     
 def setVentPulseWidth(num):
     global VentPulseWidth
-    VentPulseWidth = num
+    VentPulseWidth = num + " ms"    ##time between ~1 to 30 msec
     print("VentPulseWidth: " + VentPulseWidth)
     
 def setVRP(num):
     global VRP
-    VRP = num
+    VRP = num + " ms"           ##time between ~1 to 200 msec
     print("VRP: " + VRP)
     
 def setARP(num):
     global ARP
-    ARP = num
+    ARP = num + " ms"          ##time between ~1 to 200 msec
     print("ARP: " + ARP)
 
 
