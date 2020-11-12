@@ -20,8 +20,29 @@ from kivy.base import runTouchApp
 import os.path
 from kivy.clock import Clock
 import time
+import serial
 
 kv = Builder.load_file("pacemakerlogin.kv")
+
+## Serial Details
+
+pacemaker_serial = serial.Serial(port="COM#", baudrate=...,timeout=...)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ## Declare all the Screens ----------------------------------------------------------------------
@@ -364,12 +385,12 @@ def setVentPulseWidth(num):
     
 def setVRP(num):
     global VRP
-    VRP = num + " ms"           ##time between ~1 to 200 msec
+    VRP = num + " ms"           ##time between ~1 to 500 msec
     print("VRP: " + VRP)
     
 def setARP(num):
     global ARP
-    ARP = num + " ms"          ##time between ~1 to 200 msec
+    ARP = num + " ms"          ##time between ~1 to 500 msec
     print("ARP: " + ARP)
 
 
