@@ -19,6 +19,7 @@ import os.path
 from kivy.clock import Clock
 import time
 import serial
+import struct
 
 
 Builder.load_string("""
@@ -34,21 +35,25 @@ global a
 a = 0
 
 ## Serial Details
+pacemaker_serial = serial.Serial(port="COM7", baudrate=115200,timeout=1)
 
-pacemaker_serial = serial.Serial(port="COM8", baudrate=115200,timeout=1)
 
 class MyPage(FloatLayout):
     def btnclick(self):
         global a
         if (a==0):
-            pacemaker_serial.write(struct.pack('I', 1))
-            pacemaker_serial.close()
+            array=struct.pack('BBBfH',0x16,0x55,1,0.5,100)
+            print(len(array))
+            print(array)
+            ## slice terminator
+            pacemaker_serial.write(struct.pack('BBBfH',0x16,0x55,1,0.5,100))
+            #pacemaker_serial.close()
             a = 1
             print("LED ON")
         else:
-            pacemaker_serial.write(struct.pack('I', 0))
-            pacemaker_serial.close()
-            a=0
+            pacemaker_serial.write(struct.pack('BBBfH',0x16,0x55,0,0.5,100))
+            #pacemaker_serial.close()
+            a = 0
             print("LED OFF")
 
 
