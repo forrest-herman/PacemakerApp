@@ -21,21 +21,27 @@ import os.path
 from kivy.clock import Clock
 import time
 import serial
+import struct
 
 kv = Builder.load_file("pacemakerlogin.kv")
 
-## Serial Details
+## Serial Details ----------------------------------------------------------------------
 
-pacemaker_serial = serial.Serial(port="COM#", baudrate=...,timeout=...)
+## set correct COM port!
+pacemaker_serial = serial.Serial(port="COM7", baudrate=115200,timeout=1)
 
+def serialSend():
+    ## order of transmission: paceLocation, sensingTrue, LRL,   URL,    AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, ARP,    VRP
+    ## types of transmission: u char        u char       uchar  uchar   float   float    float          float           float   float
+    AtrAmp_DutyCycle = AtrAmp_value/5.0 *100
+    VentAmp_DutyCycle = VentAmp_value/5.0 *100
+    serialSend = struct.pack('BBBBBBffffff',0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(URL_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value) ## byte list of length 30 bytes
+    pacemaker_serial.write(serialSend)
+    print(len(serialSend))
+    print(serialSend)
+    print([0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(URL_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value])
 
-
-
-
-
-
-
-
+#serialReceive = ....
 
 
 
@@ -185,8 +191,16 @@ class MainWindow(Screen):
     ## Indicator for connected Hardware
     indicatorColour = ListProperty([1,0,0,1]) ## defaults to red, becomes green if connected
     
+    #declare text values
     global pacingMode, LRL, URL, AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, VRP, ARP
     pacingMode, LRL, URL, AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, VRP, ARP = 9*["Not Set"]
+
+    # declare values
+    global paceLocation, sensingTrue, LRL_value, URL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value
+    ## uints
+    paceLocation, sensingTrue, LRL_value, URL_value = 4*[0]
+    #floats
+    AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value = 6*[0.0]
 
     global heartBPM #### in progress
     global hardwareConnected
@@ -278,6 +292,7 @@ class programmableParametersPopup(FloatLayout):
         manageWin.transition = NoTransition()
         manageWin.current = "welcomeWin"
         manageWin.current = "mainWin"
+        serialSend()
 
 # Popup for text input
 class textInputPopup(FloatLayout):
@@ -342,6 +357,20 @@ def setPacingModetext(mode):
     global pacingMode
     pacingMode = mode
     print(pacingMode)
+
+    global paceLocation, sensingTrue
+
+    ## check if atrium, ventrial, or dual
+    if(pacingMode=="AOO" or pacingMode=="AAI"):
+        paceLocation = 1
+    elif(pacingMode=="VOO" or pacingMode=="VVI"):
+        paceLocation = 2
+
+    ##check sensing or not
+    if(pacingMode=="AAI" or pacingMode=="VVI"):
+        sensingTrue = 1
+    else: sensingTrue = 0
+
     manageWin.transition = NoTransition()
     manageWin.current = "welcomeWin"
     manageWin.current = "mainWin"
@@ -354,42 +383,58 @@ def setPacingModetext(mode):
 
 ## Set programmable parameters
 def setLRL(num):
-    global LRL  ## double
+    global LRL  ##text
+    global LRL_value ## uint
+    LRL_value = num
     LRL = num + " BPM"   ##bpm rate between roughly 30 and 100
     print("LRL: " + LRL)
 
 def setURL(num):
-    global URL  ## double
+    global URL  ##text
+    global URL_value ## uint
+    URL_value = num
     URL = num + " BPM"   ##bpm rate between roughly 80 and 150
     print("URL: " + URL)
 
 def setAtrAmp(num):
-    global AtrAmp
+    global AtrAmp  ##text
+    global AtrAmp_value ## single
+    AtrAmp_value = float(num)
     AtrAmp = num + " V"   ##voltage between 0 and 5V
     print("AtrAmp: " + AtrAmp)
     
 def setAtrPulseWidth(num):
-    global AtrPulseWidth
+    global AtrPulseWidth  ##text
+    global AtrPulseWidth_value ## single
+    AtrPulseWidth_value = float(num)
     AtrPulseWidth = num + " ms"      ##time between ~1 to 30 msec
     print("AtrPulseWidth: " + AtrPulseWidth)
     
 def setVentAmp(num):
-    global VentAmp
+    global VentAmp  ##text
+    global VentAmp_value ## single
+    VentAmp_value = float(num)
     VentAmp = num + " V"   ##voltage between 0 and 5V
     print("VentAmp: " + VentAmp)
     
 def setVentPulseWidth(num):
-    global VentPulseWidth
+    global VentPulseWidth  ##text
+    global VentPulseWidth_value ## single
+    VentPulseWidth_value = float(num)
     VentPulseWidth = num + " ms"    ##time between ~1 to 30 msec
     print("VentPulseWidth: " + VentPulseWidth)
     
 def setVRP(num):
-    global VRP
+    global VRP  ##text
+    global VRP_value ## single
+    VRP_value = float(num)
     VRP = num + " ms"           ##time between ~1 to 500 msec
     print("VRP: " + VRP)
     
 def setARP(num):
-    global ARP
+    global ARP  ##text
+    global ARP_value ## single
+    ARP_value = float(num)
     ARP = num + " ms"          ##time between ~1 to 500 msec
     print("ARP: " + ARP)
 
