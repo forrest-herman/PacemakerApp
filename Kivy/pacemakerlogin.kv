@@ -332,15 +332,6 @@
             spacing: 20,0
         
             Label:
-                id:URL_parameterText
-                text: ""
-                font_size: 18
-                halign: 'left'
-                pos_hint: {'x': 0}
-                size_hint_x: 0.5
-                background_color: 1, 1, 1, 1
-
-            Label:
                 id:LRL_parameterText
                 text: ""
                 font_size: 18
@@ -348,6 +339,15 @@
                 pos_hint: {'x': 0}
                 size_hint_x: 0.5
                 background_color: 0, 1, 1, 1
+
+            Label:
+                id:URL_parameterText
+                text: ""
+                font_size: 18
+                halign: 'left'
+                pos_hint: {'x': 0}
+                size_hint_x: 0.5
+                background_color: 1, 1, 1, 1
 
             Label:
                 id:AtrAmp_parameterText
@@ -481,16 +481,16 @@
                 spacing: 8
                 
                 Button:
-                    text:"Upper Rate Limit"
-                    on_press: 
-                        root.setIndex(2) #index to keep track of which button was pressed
-                        root.open_textInput("Please enter desired URL value")
-
-                Button:
                     text:"Lower Rate Limit"
                     on_press: 
                         root.setIndex(1) #index to keep track of which button was pressed
                         root.open_textInput("Please enter desired LRL value")
+
+                Button:
+                    text:"Upper Rate Limit"
+                    on_press: 
+                        root.setIndex(2) #index to keep track of which button was pressed
+                        root.open_textInput("Please enter desired URL value")
 
                 Button:
                     text:"Atrial Amplitude"

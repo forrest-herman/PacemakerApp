@@ -39,6 +39,7 @@ def serialSend():
     pacemaker_serial.write(serialSend)
     print(len(serialSend))
     print(serialSend)
+    print(serialSend.hex())
     print([0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(URL_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value])
 
 #serialReceive = ....
