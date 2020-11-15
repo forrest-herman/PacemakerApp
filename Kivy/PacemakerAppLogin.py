@@ -25,17 +25,36 @@ import struct
 
 kv = Builder.load_file("pacemakerlogin.kv")
 
+
 ## Serial Details ----------------------------------------------------------------------
 
-## set correct COM port!
-pacemaker_serial = serial.Serial(port="COM7", baudrate=115200,timeout=1)
+def serialConnect():
+    notConnected = True
+    global pacemaker_serial, hardwareConnected
+    port = ["COM1","COM2","COM3","COM4","COM5","COM6","COM7","COM8"] ## set correct COM port!
+    i = len(port)
+    while notConnected:
+        i -= 1
+        try:
+            pacemaker_serial = serial.Serial(port=port[i], baudrate=115200,timeout=1)
+            notConnected = False
+        except:
+            notConnected = True
+            print(port[i] + " failed")
+        if (notConnected == False): 
+            hardwareConnected = True
+            print(port[i] + " connected")
+            break
+
+
+#pacemaker_serial = serial.Serial(port="COM7", baudrate=115200,timeout=1)
 
 def serialSend():
     ## order of transmission: paceLocation, sensingTrue, LRL,   URL,    AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, ARP,    VRP
     ## types of transmission: u char        u char       uchar  uchar   float   float    float          float           float   float
     AtrAmp_DutyCycle = AtrAmp_value/5.0 *100
     VentAmp_DutyCycle = VentAmp_value/5.0 *100
-    serialSend = struct.pack('BBBBBBffffff',0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(URL_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value) ## byte list of length 30 bytes
+    serialSend = struct.pack('<BBBBBBffffff',0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(URL_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value) ## byte list of length 30 bytes
     pacemaker_serial.write(serialSend)
     print(len(serialSend))
     print(serialSend)
@@ -186,7 +205,6 @@ class MainWindow(Screen):
 
     #for later ### display_heartbeat_bpm = ObjectProperty(None) ## in progress
 
-
     currentUsername = "" ## initialize the local variable, takes it's value from loginWindow btnLogin
 
     ## Indicator for connected Hardware
@@ -203,11 +221,11 @@ class MainWindow(Screen):
     #floats
     AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value = 6*[0.0]
 
-    global heartBPM #### in progress
+    #global heartBPM #### in progress
+    #heartBPM = 100 ## temporary
+
     global hardwareConnected
-    #change this for assignment 2
-    hardwareConnected = False ## set to board for assignment 2
-    heartBPM = 100 ## temporary
+    hardwareConnected = False
 
     def on_enter(self, *args):
         ##initialize the text labels
@@ -222,8 +240,6 @@ class MainWindow(Screen):
         self.display_ARP_parameter.text = "Atrium Refractory Period: " + ARP
         self.display_VRP_parameter.text = "Ventricular Refractory Period: " + VRP
         #self.display_heartbeat_bpm.text = "BPM: " + str(heartBPM) ####  for later 
-        
-
 
         ## set hardware connected indicator
         if(hardwareConnected):
@@ -261,6 +277,18 @@ class MainWindow(Screen):
         popupWindow = Popup(title="Programmable Parameters", content=show,size_hint=(None,None), size=(500,500))
         popupWindow.open()
     
+    def serialConnectMain(self):
+        serialConnect()
+        if(hardwareConnected):
+            self.indicatorColour = [0,1,0,1] ## green
+        else: 
+            self.indicatorColour = [1,0,0,1] ## defaults to red
+
+    def deploySerialValues(self):
+        #if all values not zero
+        serialSend()
+        #else, throw error!
+
 
 
 ## Declare all Popups Layout Classes ----------------------------------------------------------------------
@@ -293,7 +321,7 @@ class programmableParametersPopup(FloatLayout):
         manageWin.transition = NoTransition()
         manageWin.current = "welcomeWin"
         manageWin.current = "mainWin"
-        serialSend()
+        serialSend() ## make this a separate button
 
 # Popup for text input
 class textInputPopup(FloatLayout):
@@ -375,11 +403,6 @@ def setPacingModetext(mode):
     manageWin.transition = NoTransition()
     manageWin.current = "welcomeWin"
     manageWin.current = "mainWin"
-
-    ##testing, for demo purpose only. remove for assignment 2
-    global hardwareConnected
-    hardwareConnected = True
-    ## testing end
 
 
 ## Set programmable parameters
