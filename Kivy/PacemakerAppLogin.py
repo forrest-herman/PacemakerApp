@@ -20,8 +20,50 @@ from kivy.base import runTouchApp
 import os.path
 from kivy.clock import Clock
 import time
+import serial
+import struct
 
 kv = Builder.load_file("pacemakerlogin.kv")
+
+
+## Serial Details ----------------------------------------------------------------------
+
+def serialConnect():
+    notConnected = True
+    global pacemaker_serial, hardwareConnected
+    port = ["COM1","COM2","COM3","COM4","COM5","COM6","COM7","COM8"] ## set correct COM port!
+    i = len(port)
+    while notConnected:
+        i -= 1
+        try:
+            pacemaker_serial = serial.Serial(port=port[i], baudrate=115200,timeout=1)
+            notConnected = False
+        except:
+            notConnected = True
+            print(port[i] + " failed")
+        if (notConnected == False): 
+            hardwareConnected = True
+            print(port[i] + " connected")
+            break
+
+
+#pacemaker_serial = serial.Serial(port="COM7", baudrate=115200,timeout=1)
+
+def serialSend():
+    ## order of transmission: paceLocation, sensingTrue, LRL,   URL,    AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, ARP,    VRP
+    ## types of transmission: u char        u char       uchar  uchar   float   float    float          float           float   float
+    AtrAmp_DutyCycle = AtrAmp_value/5.0 *100
+    VentAmp_DutyCycle = VentAmp_value/5.0 *100
+    serialSend = struct.pack('<BBBBBBffffff',0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(URL_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value) ## byte list of length 30 bytes
+    pacemaker_serial.write(serialSend)
+    print(len(serialSend))
+    print(serialSend)
+    print(serialSend.hex())
+    print([0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(URL_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value])
+
+#serialReceive = ....
+
+
 
 
 ## Declare all the Screens ----------------------------------------------------------------------
@@ -147,7 +189,6 @@ class MainWindow(Screen):
     currentUser = ObjectProperty(None)
     display_active_pacingMode = ObjectProperty(None)
 
-    display_heartbeat_bpm = ObjectProperty(None) ## in progress
     display_LRL_parameter = ObjectProperty(None)
     display_URL_parameter = ObjectProperty(None)
     display_AtrAmp_parameter = ObjectProperty(None)
@@ -157,26 +198,34 @@ class MainWindow(Screen):
     display_VRP_parameter = ObjectProperty(None)
     display_ARP_parameter = ObjectProperty(None)
 
+    #for later ### display_heartbeat_bpm = ObjectProperty(None) ## in progress
 
     currentUsername = "" ## initialize the local variable, takes it's value from loginWindow btnLogin
 
     ## Indicator for connected Hardware
     indicatorColour = ListProperty([1,0,0,1]) ## defaults to red, becomes green if connected
     
+    #declare text values
     global pacingMode, LRL, URL, AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, VRP, ARP
     pacingMode, LRL, URL, AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, VRP, ARP = 9*["Not Set"]
 
-    global heartBPM #### in progress
+    # declare values
+    global paceLocation, sensingTrue, LRL_value, URL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value
+    ## uints
+    paceLocation, sensingTrue, LRL_value, URL_value = 4*[0]
+    #floats
+    AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value = 6*[0.0]
+
+    #global heartBPM #### in progress
+    #heartBPM = 100 ## temporary
+
     global hardwareConnected
-    #change this for assignment 2
-    hardwareConnected = False ## set to board for assignment 2
-    heartBPM = 100 ## temporary
+    hardwareConnected = False
 
     def on_enter(self, *args):
         ##initialize the text labels
         self.currentUser.text = "Active User: " + userDatabase.get_user(self.currentUsername)[0]
         self.display_active_pacingMode.text = "Pacing Mode: " + pacingMode
-        self.display_heartbeat_bpm.text = "BPM: " + str(heartBPM)
         self.display_LRL_parameter.text = "Lower Rate Limit: " + LRL
         self.display_URL_parameter.text = "Upper Rate Limit: " + URL
         self.display_AtrAmp_parameter.text = "Atrium Aplitude: " + AtrAmp
@@ -185,8 +234,7 @@ class MainWindow(Screen):
         self.display_VentPulseWidth_parameter.text = "VentPulseWidth: " + VentPulseWidth
         self.display_ARP_parameter.text = "Atrium Refractory Period: " + ARP
         self.display_VRP_parameter.text = "Ventricular Refractory Period: " + VRP
-        
-
+        #self.display_heartbeat_bpm.text = "BPM: " + str(heartBPM) ####  for later 
 
         ## set hardware connected indicator
         if(hardwareConnected):
@@ -224,7 +272,24 @@ class MainWindow(Screen):
         popupWindow = Popup(title="Programmable Parameters", content=show,size_hint=(None,None), size=(500,500))
         popupWindow.open()
     
+    ## Saves the parameter data into the user_data.txt file to deploy in the future
+    def deploy(self):
+        #if all values not zero
+        self.file = open("user_data.txt", "w")
+        self.data = {}
+        self.file.write(self.currentUsername + ";" + LRL_value + ";" + URL_value + ";" + str(AtrAmp_value) + ";" + str(VentAmp_value) + ";" + str(AtrPulseWidth_value) + ";" + str(VentPulseWidth_value) + ";" + str(VRP_value) + ";" + str(ARP_value) + "\n")
+        self.file.close()
+        serialSend()
+        #else, throw error!
+    
 
+    def serialConnectMain(self):
+        serialConnect()
+        if(hardwareConnected):
+            self.indicatorColour = [0,1,0,1] ## green
+        else: 
+            self.indicatorColour = [1,0,0,1] ## defaults to red
+    
 
 ## Declare all Popups Layout Classes ----------------------------------------------------------------------
 
@@ -266,22 +331,78 @@ class textInputPopup(FloatLayout):
     def selectProgParam(self):
         num = self.inputField.text
 
+        ## LRL -------
         if index == 1:
-            setLRL(num)
+            if int(num) > 150 or int(num) < 40:
+                show = errorPopup()
+                global popupWindow
+                popupWindow = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow.open()
+            else:
+                setLRL(num) ##typecast float to int
+
+        ## URL -------
         elif index == 2:
-            setURL(num)
+            if int(num) > 150 or int(num) < 60:
+                show = errorPopup()
+                popupWindow = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow.open()
+            else:
+                setURL(num) ##typecast float to int
+
+        ## AtrAmp -------
         elif index == 3:
-            setAtrAmp(num)
+            if int(num) > 5 or int(num) < 0:
+                show = errorPopup()
+                popupWindow = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow.open()
+            else:
+                setAtrAmp(num)
+
+        ## AtrPulseWidth -------
         elif index == 4:
-            setAtrPulseWidth(num)
+            if float(num) > 100 or float(num) < 0:
+                show = errorPopup()
+                popupWindow = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow.open()
+            else:
+                setAtrPulseWidth(num)
+
+        ## ARP -------
         elif index == 5:
-            setARP(num)
+            if float(num) > 600 or float(num) < 0:
+                show = errorPopup()
+                popupWindow = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow.open()
+            else:
+                setARP(num)
+
+        ## VentAmp -------
         elif index == 6:
-            setVentAmp(num)
+            if int(num) > 5 or int(num) < 0:
+                show = errorPopup()
+                popupWindow = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow.open()
+            else:
+                 setVentAmp(num)
+
+        ## VentPulseWidth -------
         elif index == 7:
-            setVentPulseWidth(num)
+            if float(num) > 100 or float(num) < 0:
+                show = errorPopup()
+                popupWindow = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow.open()
+            else:
+                  setVentPulseWidth(num)
+
+        ## VRP -------
         elif index == 8:
-            setVRP(num)
+            if float(num) > 600 or float(num) < 0:
+                show = errorPopup()
+                popupWindow = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow.open()
+            else:
+                  setVRP(num)
 
     def closePopup(self):
         popupWindow_editParameter.dismiss()
@@ -320,58 +441,81 @@ def setPacingModetext(mode):
     global pacingMode
     pacingMode = mode
     print(pacingMode)
+
+    global paceLocation, sensingTrue
+
+    ## check if atrium, ventrial, or dual
+    if(pacingMode=="AOO" or pacingMode=="AAI"):
+        paceLocation = 1
+    elif(pacingMode=="VOO" or pacingMode=="VVI"):
+        paceLocation = 2
+
+    ##check sensing or not
+    if(pacingMode=="AAI" or pacingMode=="VVI"):
+        sensingTrue = 1
+    else: sensingTrue = 0
+
     manageWin.transition = NoTransition()
     manageWin.current = "welcomeWin"
     manageWin.current = "mainWin"
 
-    ##testing, for demo purpose only. remove for assignment 2
-    global hardwareConnected
-    hardwareConnected = True
-    ## testing end
 
-
-#set programmable parameters
+## Set programmable parameters
 def setLRL(num):
-    global LRL
-    LRL = num
+    global LRL  ##text
+    global LRL_value ## uint
+    LRL_value = num
+    LRL = num + " BPM"   ##bpm rate between roughly 30 and 100
     print("LRL: " + LRL)
 
 def setURL(num):
-    global URL
-    URL = num
+    global URL  ##text
+    global URL_value ## uint
+    URL_value = num
+    URL = num + " BPM"   ##bpm rate between roughly 80 and 150
     print("URL: " + URL)
 
 def setAtrAmp(num):
-    global AtrAmp
-    AtrAmp = num
+    global AtrAmp  ##text
+    global AtrAmp_value ## single
+    AtrAmp_value = float(num)
+    AtrAmp = num + " V"   ##voltage between 0 and 5V
     print("AtrAmp: " + AtrAmp)
     
 def setAtrPulseWidth(num):
-    global AtrPulseWidth
-    AtrPulseWidth = num
+    global AtrPulseWidth  ##text
+    global AtrPulseWidth_value ## single
+    AtrPulseWidth_value = float(num)
+    AtrPulseWidth = num + " ms"      ##time between ~1 to 30 msec
     print("AtrPulseWidth: " + AtrPulseWidth)
     
 def setVentAmp(num):
-    global VentAmp
-    VentAmp = num
+    global VentAmp  ##text
+    global VentAmp_value ## single
+    VentAmp_value = float(num)
+    VentAmp = num + " V"   ##voltage between 0 and 5V
     print("VentAmp: " + VentAmp)
     
 def setVentPulseWidth(num):
-    global VentPulseWidth
-    VentPulseWidth = num
+    global VentPulseWidth  ##text
+    global VentPulseWidth_value ## single
+    VentPulseWidth_value = float(num)
+    VentPulseWidth = num + " ms"    ##time between ~1 to 30 msec
     print("VentPulseWidth: " + VentPulseWidth)
     
 def setVRP(num):
-    global VRP
-    VRP = num
+    global VRP  ##text
+    global VRP_value ## single
+    VRP_value = float(num)
+    VRP = num + " ms"           ##time between ~1 to 500 msec
     print("VRP: " + VRP)
     
 def setARP(num):
-    global ARP
-    ARP = num
+    global ARP  ##text
+    global ARP_value ## single
+    ARP_value = float(num)
+    ARP = num + " ms"          ##time between ~1 to 500 msec
     print("ARP: " + ARP)
-
-
 
 
 
@@ -442,8 +586,18 @@ else:
     f.close()
     print("no file found, new file was created")
 
+if(os.path.isfile("user_data.txt")):
+    print("file located successfuly")
+else:
+    f = open("user_data.txt", "w")
+    f.close()
+    print("no file found, new file was created")
+
 ## Load the database
 userDatabase = Database("saved_users.txt")
+
+## If a new database class needs to be created 
+#parameterDatabase = paramDatabase("user_data.txt")
 
 
 ## Run the App ----------------------------------------------------------------------

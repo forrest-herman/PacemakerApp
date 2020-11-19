@@ -246,7 +246,6 @@
     currentUser: currentUser
     display_active_pacingMode:pacingMode_text
 
-    display_heartbeat_bpm:heartBPM_text
     display_LRL_parameter:LRL_parameterText
     display_URL_parameter:URL_parameterText
     display_AtrAmp_parameter:AtrAmp_parameterText
@@ -256,6 +255,7 @@
     display_ARP_parameter:ARP_parameterText
     display_VRP_parameter:VRP_parameterText
 
+    #display_heartbeat_bpm:heartBPM_text  ####  for later
 
 
     FloatLayout:
@@ -286,7 +286,7 @@
             text: "Logout"
             size_hint: 0.1,0.05
             pos: root.width-self.width-2,root.height-self.height-2
-            on_press: root.logout()
+            on_press: root.serialConnectMain() #root.logout()
 
         ## Delete Account Button top left
         Button:
@@ -321,6 +321,13 @@
             size_hint: 0.4,0.1
             pos_hint: {"center_x":0.5, "top":0.6}
             on_press: root.open_programmableParameters()
+        
+        ## Deploy Button 
+        Button:
+            text: "Deploy Parameters"
+            size_hint:0.4,0.1
+            pos_hint: {"center_x":0.5, "top":0.13}
+            on_press: root.deploy()
 
 
         ## Display all programmable parameters -------------------------------
@@ -332,15 +339,6 @@
             spacing: 20,0
         
             Label:
-                id:URL_parameterText
-                text: ""
-                font_size: 18
-                halign: 'left'
-                pos_hint: {'x': 0}
-                size_hint_x: 0.5
-                background_color: 1, 1, 1, 1
-
-            Label:
                 id:LRL_parameterText
                 text: ""
                 font_size: 18
@@ -348,6 +346,15 @@
                 pos_hint: {'x': 0}
                 size_hint_x: 0.5
                 background_color: 0, 1, 1, 1
+
+            Label:
+                id:URL_parameterText
+                text: ""
+                font_size: 18
+                halign: 'left'
+                pos_hint: {'x': 0}
+                size_hint_x: 0.5
+                background_color: 1, 1, 1, 1
 
             Label:
                 id:AtrAmp_parameterText
@@ -400,14 +407,14 @@
                 size_hint_x: 0.5
 
 
-        ## BPM Display
-        GridLayout:
-            pos_hint: {"center_x":0.5, "top":0.3}
-            Label:
-                id:heartBPM_text
-                text: ""
-                font_size: 18
-                halign: 'center'
+        ## BPM Display for later
+        # GridLayout:
+        #     pos_hint: {"center_x":0.5, "top":0.3}
+        #     Label:
+        #         id:heartBPM_text
+        #         text: ""
+        #         font_size: 18
+        #         halign: 'center'
 
                 
 
@@ -481,16 +488,16 @@
                 spacing: 8
                 
                 Button:
-                    text:"Upper Rate Limit"
-                    on_press: 
-                        root.setIndex(2) #index to keep track of which button was pressed
-                        root.open_textInput("Please enter desired URL value")
-
-                Button:
                     text:"Lower Rate Limit"
                     on_press: 
                         root.setIndex(1) #index to keep track of which button was pressed
                         root.open_textInput("Please enter desired LRL value")
+
+                Button:
+                    text:"Upper Rate Limit"
+                    on_press: 
+                        root.setIndex(2) #index to keep track of which button was pressed
+                        root.open_textInput("Please enter desired URL value")
 
                 Button:
                     text:"Atrial Amplitude"
@@ -544,12 +551,6 @@
 
     FloatLayout:
         pos_hint: {"center_x":0.5, "center_y":0.5}
-        
-        # GridLayout:
-        #     rows:2
-        #     pos_hint: {"center_x":0.5, "center_y":0.4}
-        #     size_hint: 0.5, 0.9
-        #     spacing: 30
 
         GridLayout:
             size_hint: 0.6, 0.9
@@ -580,7 +581,7 @@
 <errorPopup>:
     size:400,300
     Label:
-        text: "Invalid username or password"
+        text: "Invalid Entry"  ##"Invalid username or password"
         size_hint:0.6,0.2
         pos_hint: {"x":0.2, "center_y":0.7}
 
