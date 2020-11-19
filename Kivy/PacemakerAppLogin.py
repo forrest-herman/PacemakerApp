@@ -66,11 +66,6 @@ def serialSend():
 
 
 
-
-
-
-
-
 ## Declare all the Screens ----------------------------------------------------------------------
 
 ## WelcomeWindow ----------------------------------------
@@ -277,19 +272,24 @@ class MainWindow(Screen):
         popupWindow = Popup(title="Programmable Parameters", content=show,size_hint=(None,None), size=(500,500))
         popupWindow.open()
     
+    ## Saves the parameter data into the user_data.txt file to deploy in the future
+    def deploy(self):
+        #if all values not zero
+        self.file = open("user_data.txt", "w")
+        self.data = {}
+        self.file.write(self.currentUsername + ";" + LRL_value + ";" + URL_value + ";" + str(AtrAmp_value) + ";" + str(VentAmp_value) + ";" + str(AtrPulseWidth_value) + ";" + str(VentPulseWidth_value) + ";" + str(VRP_value) + ";" + str(ARP_value) + "\n")
+        self.file.close()
+        serialSend()
+        #else, throw error!
+    
+
     def serialConnectMain(self):
         serialConnect()
         if(hardwareConnected):
             self.indicatorColour = [0,1,0,1] ## green
         else: 
             self.indicatorColour = [1,0,0,1] ## defaults to red
-
-    def deploySerialValues(self):
-        #if all values not zero
-        serialSend()
-        #else, throw error!
-
-
+    
 
 ## Declare all Popups Layout Classes ----------------------------------------------------------------------
 
@@ -321,7 +321,6 @@ class programmableParametersPopup(FloatLayout):
         manageWin.transition = NoTransition()
         manageWin.current = "welcomeWin"
         manageWin.current = "mainWin"
-        serialSend() ## make this a separate button
 
 # Popup for text input
 class textInputPopup(FloatLayout):
@@ -332,22 +331,78 @@ class textInputPopup(FloatLayout):
     def selectProgParam(self):
         num = self.inputField.text
 
+        ## LRL -------
         if index == 1:
-            setLRL(num)
+            if int(num) > 150 or int(num) < 40:
+                show = errorPopup()
+                global popupWindow
+                popupWindow = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow.open()
+            else:
+                setLRL(num) ##typecast float to int
+
+        ## URL -------
         elif index == 2:
-            setURL(num)
+            if int(num) > 150 or int(num) < 60:
+                show = errorPopup()
+                popupWindow = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow.open()
+            else:
+                setURL(num) ##typecast float to int
+
+        ## AtrAmp -------
         elif index == 3:
-            setAtrAmp(num)
+            if int(num) > 5 or int(num) < 0:
+                show = errorPopup()
+                popupWindow = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow.open()
+            else:
+                setAtrAmp(num)
+
+        ## AtrPulseWidth -------
         elif index == 4:
-            setAtrPulseWidth(num)
+            if float(num) > 100 or float(num) < 0:
+                show = errorPopup()
+                popupWindow = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow.open()
+            else:
+                setAtrPulseWidth(num)
+
+        ## ARP -------
         elif index == 5:
-            setARP(num)
+            if float(num) > 600 or float(num) < 0:
+                show = errorPopup()
+                popupWindow = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow.open()
+            else:
+                setARP(num)
+
+        ## VentAmp -------
         elif index == 6:
-            setVentAmp(num)
+            if int(num) > 5 or int(num) < 0:
+                show = errorPopup()
+                popupWindow = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow.open()
+            else:
+                 setVentAmp(num)
+
+        ## VentPulseWidth -------
         elif index == 7:
-            setVentPulseWidth(num)
+            if float(num) > 100 or float(num) < 0:
+                show = errorPopup()
+                popupWindow = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow.open()
+            else:
+                  setVentPulseWidth(num)
+
+        ## VRP -------
         elif index == 8:
-            setVRP(num)
+            if float(num) > 600 or float(num) < 0:
+                show = errorPopup()
+                popupWindow = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow.open()
+            else:
+                  setVRP(num)
 
     def closePopup(self):
         popupWindow_editParameter.dismiss()
@@ -464,8 +519,6 @@ def setARP(num):
 
 
 
-
-
 ## Initialize the Popups ------------------------------------------------------
 
 def invalidLogin():
@@ -533,8 +586,18 @@ else:
     f.close()
     print("no file found, new file was created")
 
+if(os.path.isfile("user_data.txt")):
+    print("file located successfuly")
+else:
+    f = open("user_data.txt", "w")
+    f.close()
+    print("no file found, new file was created")
+
 ## Load the database
 userDatabase = Database("saved_users.txt")
+
+## If a new database class needs to be created 
+#parameterDatabase = paramDatabase("user_data.txt")
 
 
 ## Run the App ----------------------------------------------------------------------

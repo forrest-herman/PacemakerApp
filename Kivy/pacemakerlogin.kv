@@ -321,6 +321,13 @@
             size_hint: 0.4,0.1
             pos_hint: {"center_x":0.5, "top":0.6}
             on_press: root.open_programmableParameters()
+        
+        ## Deploy Button 
+        Button:
+            text: "Deploy Parameters"
+            size_hint:0.4,0.1
+            pos_hint: {"center_x":0.5, "top":0.13}
+            on_press: root.deploy()
 
 
         ## Display all programmable parameters -------------------------------
@@ -574,7 +581,7 @@
 <errorPopup>:
     size:400,300
     Label:
-        text: "Invalid username or password"
+        text: "Invalid Entry"  ##"Invalid username or password"
         size_hint:0.6,0.2
         pos_hint: {"x":0.2, "center_y":0.7}
 
