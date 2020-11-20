@@ -315,6 +315,13 @@
                 pos_hint: {"center_x":0.5,"top":0.85}
                 on_press: root.open_modeSelector()
 
+        ## Heartbeat Graph Button
+        Button:
+            text: "Open Heartbeat Graph"
+            size_hint: 0.4,0.1
+            pos_hint: {"center_x":0.5, "top":0.75}
+            on_press: root.open_heartbeatGraph()
+
         ## Programmable Parameters Button
         Button:
             text: "Change Programmable Parameters"
@@ -469,6 +476,45 @@
                 Button:
                     text:"Cancel"
                     on_release: root.closePopup()
+
+<heartbeatGraphPopup>:
+    FloatLayout:
+        pos_hint: {"center_x":0.5, "center_y":0.5}
+
+        GridLayout:
+            rows:2
+            pos_hint: {"center_x":0.5, "center_y":0.5}
+            size_hint: 1, .5
+            spacing: 30
+            padding: 20
+
+            GridLayout:
+                size_hint_y: 3
+                rows: 1
+                spacing: 8
+
+                Graph:
+                    id: graph
+                    xlabel: "Time"
+                    ylabel: "Voltage"
+
+            GridLayout:
+                size_hint_y: 0.4
+                rows: 1
+                spacing: 8
+                    
+                Button:
+                    text:"Start"
+                    on_press: 
+                        root.startHeartbeat()
+
+                Button:
+                    text:"Close"
+                    on_release:
+                        root.closePopup()
+                        root.stopHeartbeat()
+                    
+
 
 <programmableParametersPopup>:
     FloatLayout:

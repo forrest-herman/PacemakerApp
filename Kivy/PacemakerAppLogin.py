@@ -22,6 +22,9 @@ from kivy.clock import Clock
 import time
 import serial
 import struct
+from numpy import random
+from kivy.garden.graph import MeshLinePlot
+
 
 kv = Builder.load_file("pacemakerlogin.kv")
 
@@ -61,10 +64,13 @@ def serialSend():
     print(serialSend.hex())
     print([0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(URL_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value])
 
-#serialReceive = ....
-
-
-
+def serialReceive():
+    serialRequest = struct.pack('<BBBBBBffffff',0x16,0x22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) ## byte list of length 30 bytes
+    pacemaker_serial.read(serialRequest)
+    print(len(serialRequest))
+    print(serialRequest)
+    print(serialRequest.hex())
+    print([0x16,0x22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 
 ## Declare all the Screens ----------------------------------------------------------------------
 
@@ -271,7 +277,14 @@ class MainWindow(Screen):
         global popupWindow
         popupWindow = Popup(title="Programmable Parameters", content=show,size_hint=(None,None), size=(500,500))
         popupWindow.open()
-    
+
+    ## Heartbeat Graph Popup window is displayed
+    def open_heartbeatGraph(self):
+        show = heartbeatGraphPopup()
+        global popupWindow
+        popupWindow = Popup(title="Current Heartbeat", content=show,size_hint=(None,None), size=(1000,1000))
+        popupWindow.open()
+            
     ## Saves the parameter data into the user_data.txt file to deploy in the future
     def deploy(self):
         #if all values not zero
@@ -300,6 +313,27 @@ class modeSelectorPopup(FloatLayout):
 
     def setPacingMode(self,mode):
         setPacingModetext(mode)
+
+class heartbeatGraphPopup(FloatLayout):
+    
+    def __init__(self,):
+        super(heartbeatGraphPopup, self).__init__()
+        self.plot = MeshLinePlot(color=[1, 0, 0, 1])
+    
+    def startHeartbeat(self):
+        self.ids.graph.add_plot(self.plot)
+        Clock.schedule_interval(self.get_value, 0.1)
+
+    def stopHeartbeat(self):
+        Clock.unschedule(self.get_value)
+
+    def get_value(self, dt):
+        # serial receive 
+        testing = random.randint(100, size=(200))
+        self.plot.points = [(i, j) for i, j in enumerate(testing)]
+
+    def closePopup(self):
+        popupWindow.dismiss()
 
 # Popup for programmableParameterPopup
 class programmableParametersPopup(FloatLayout):
@@ -436,7 +470,7 @@ class successPopup(FloatLayout):
 
 ## Global Vars and Functions ----------------------------------------------------------------------
 
-
+## Set pacing mode
 def setPacingModetext(mode):
     global pacingMode
     pacingMode = mode
