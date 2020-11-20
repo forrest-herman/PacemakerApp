@@ -485,16 +485,19 @@
             rows:2
             pos_hint: {"center_x":0.5, "center_y":0.5}
             size_hint: 1, .5
-            spacing: 30
-            padding: 20
 
             GridLayout:
                 size_hint_y: 3
-                rows: 1
+                rows: 3
                 spacing: 8
 
                 Graph:
-                    id: graph
+                    id: graphAtr
+                    xlabel: "Time"
+                    ylabel: "Voltage"
+
+                Graph:
+                    id: graphVent
                     xlabel: "Time"
                     ylabel: "Voltage"
 

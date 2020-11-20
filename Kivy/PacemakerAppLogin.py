@@ -318,19 +318,29 @@ class heartbeatGraphPopup(FloatLayout):
     
     def __init__(self,):
         super(heartbeatGraphPopup, self).__init__()
-        self.plot = MeshLinePlot(color=[1, 0, 0, 1])
+        self.plot1 = MeshLinePlot(color=[1, 0, 0, 1])
+        self.plot2 = MeshLinePlot(color=[1, 0, 0, 1])
     
     def startHeartbeat(self):
-        self.ids.graph.add_plot(self.plot)
-        Clock.schedule_interval(self.get_value, 0.1)
+        self.ids.graphAtr.add_plot(self.plot1)
+        Clock.schedule_interval(self.get_value_atr, 0.001)
+
+        self.ids.graphVent.add_plot(self.plot2)
+        Clock.schedule_interval(self.get_value_vent, 0.001)
 
     def stopHeartbeat(self):
-        Clock.unschedule(self.get_value)
+        Clock.unschedule(self.get_value_atr)
+        Clock.unschedule(self.get_value_vent)
 
-    def get_value(self, dt):
+    def get_value_atr(self, dt):
+        # serial receive 
+        testing = random.randint(100, size=(100))
+        self.plot1.points = [(i, j) for i, j in enumerate(testing)]
+        
+    def get_value_vent(self, dt):
         # serial receive 
         testing = random.randint(100, size=(200))
-        self.plot.points = [(i, j) for i, j in enumerate(testing)]
+        self.plot2.points = [(i, j) for i, j in enumerate(testing)]
 
     def closePopup(self):
         popupWindow.dismiss()
