@@ -23,6 +23,7 @@ import time
 import serial
 import struct
 from kivy.garden.graph import MeshLinePlot
+from numpy import random
 
 
 kv = Builder.load_file("pacemakerlogin.kv")
@@ -66,6 +67,9 @@ def serialSend():
 def serialReceive():
     serialRequest = struct.pack('<BBBBBBffffff',0x16,0x22, 0, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0) ## byte list of length 30 bytes
     pacemaker_serial.write(serialRequest)
+    #print(struct.unpack('dd',pacemaker_serial.read(16)))
+    #print(pacemaker_serial.read(16).hex())
+    #print(struct.unpack('<dd',pacemaker_serial.read(16)))
     return struct.unpack('<dd',pacemaker_serial.read(16))
 
 
@@ -312,24 +316,29 @@ class modeSelectorPopup(FloatLayout):
         setPacingModetext(mode)
 
 
-## Egram -----------------------------------
+## Egram -----------------------------------------------------------------------
 
 class heartbeatGraphPopup(FloatLayout):
     
     def __init__(self,):
         super(heartbeatGraphPopup, self).__init__()
-        self.plot = MeshLinePlot(color=[1, 0, 0, 1])
+        self.plot1 = MeshLinePlot(color=[1, 0, 0, 1])
+        self.plot2 = MeshLinePlot(color=[1, 0, 0, 1])
     
     def startHeartbeat(self):
-        self.ids.graph.add_plot(self.plot)
         global ATR_graphArray ## add VENT_graphArray
         ATR_graphArray = 100*[0.0]
-        Clock.schedule_interval(self.get_value, 2)
+        self.ids.graphAtr.add_plot(self.plot1)
+        Clock.schedule_interval(self.get_value_atr, 2) ### error if less than 2
+
+        self.ids.graphVent.add_plot(self.plot2)
+        Clock.schedule_interval(self.get_value_vent, 0.001)
 
     def stopHeartbeat(self):
-        Clock.unschedule(self.get_value)
+        Clock.unschedule(self.get_value_atr)
+        Clock.unschedule(self.get_value_vent)
 
-    def get_value(self, dt):
+    def get_value_atr(self, dt):
         #serialReceive()
         global ATR_graphArray
         ATR_graphArray.pop(0)
@@ -339,7 +348,12 @@ class heartbeatGraphPopup(FloatLayout):
         print(atrGraphValue)
         print(ventGraphValue)
         ATR_graphArray.append(atrGraphValue)
-        self.plot.points = [(i, j) for i, j in enumerate(ATR_graphArray)]
+        self.plot1.points = [(i, j) for i, j in enumerate(ATR_graphArray)]
+        
+    def get_value_vent(self, dt):
+        # serial receive 
+        testing = random.randint(100, size=(200))
+        self.plot2.points = [(i, j) for i, j in enumerate(testing)]
 
     def closePopup(self):
         popupWindow.dismiss()
