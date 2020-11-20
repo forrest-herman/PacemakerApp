@@ -249,7 +249,7 @@ class MainWindow(Screen):
         popupWindow = Popup(title="Programmable Parameters", content=show,size_hint=(None,None), size=(500,500))
         popupWindow.open()
     
-    ### PUSH THESE CHANGES---------------------------------------------------------------------------------------------------------------------
+    ### PULL THESE CHANGES>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     # Saves the parameter data into the user_data.txt file to deploy in the future
     def deploy(self):
         self.file = open("user_data.txt", "w")
@@ -274,7 +274,7 @@ class MainWindow(Screen):
             for user in self.data:
                 f.write(user + ";" + self.data[user][0] + ";" + self.data[user][1] + ";" + self.data[user][2] + ";" + self.data[user][3] + ";" + self.data[user][4] + ";" + self.data[user][5] + ";" + self.data[user][6] + ";" + self.data[user][7] + ";" + "\n")
 
-    ### PUSH THESE CHANGES---------------------------------------------------------------------------------------------------------------------
+   ### PULL THESE CHANGES>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
         
 
     
@@ -310,6 +310,7 @@ class programmableParametersPopup(FloatLayout):
         manageWin.current = "welcomeWin"
         manageWin.current = "mainWin"
 
+### PULL THESE CHANGES>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 # Popup for text input
 class textInputPopup(FloatLayout):
 
@@ -389,7 +390,7 @@ class textInputPopup(FloatLayout):
         manageWin.transition = NoTransition()
         manageWin.current = "welcomeWin"
         manageWin.current = "mainWin"
-
+### PULL THESE CHANGES>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 ## Generic Errors
 class errorPopup(FloatLayout):
