@@ -22,7 +22,6 @@ from kivy.clock import Clock
 import time
 import serial
 import struct
-from numpy import random
 from kivy.garden.graph import MeshLinePlot
 
 
@@ -65,12 +64,10 @@ def serialSend():
     print([0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(URL_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value])
 
 def serialReceive():
-    serialRequest = struct.pack('<BBBBBBffffff',0x16,0x22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) ## byte list of length 30 bytes
-    pacemaker_serial.read(serialRequest)
-    print(len(serialRequest))
-    print(serialRequest)
-    print(serialRequest.hex())
-    print([0x16,0x22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    serialRequest = struct.pack('<BBBBBBffffff',0x16,0x22, 0, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0) ## byte list of length 30 bytes
+    pacemaker_serial.write(serialRequest)
+    return struct.unpack('<dd',pacemaker_serial.read(16))
+
 
 ## Declare all the Screens ----------------------------------------------------------------------
 
@@ -290,7 +287,7 @@ class MainWindow(Screen):
         #if all values not zero
         self.file = open("user_data.txt", "w")
         self.data = {}
-        self.file.write(self.currentUsername + ";" + LRL_value + ";" + URL_value + ";" + str(AtrAmp_value) + ";" + str(VentAmp_value) + ";" + str(AtrPulseWidth_value) + ";" + str(VentPulseWidth_value) + ";" + str(VRP_value) + ";" + str(ARP_value) + "\n")
+        self.file.write(self.currentUsername + ";" + str(LRL_value) + ";" + str(URL_value) + ";" + str(AtrAmp_value) + ";" + str(VentAmp_value) + ";" + str(AtrPulseWidth_value) + ";" + str(VentPulseWidth_value) + ";" + str(VRP_value) + ";" + str(ARP_value) + "\n")
         self.file.close()
         serialSend()
         #else, throw error!
@@ -314,6 +311,9 @@ class modeSelectorPopup(FloatLayout):
     def setPacingMode(self,mode):
         setPacingModetext(mode)
 
+
+## Egram -----------------------------------
+
 class heartbeatGraphPopup(FloatLayout):
     
     def __init__(self,):
@@ -322,15 +322,24 @@ class heartbeatGraphPopup(FloatLayout):
     
     def startHeartbeat(self):
         self.ids.graph.add_plot(self.plot)
-        Clock.schedule_interval(self.get_value, 0.1)
+        global ATR_graphArray ## add VENT_graphArray
+        ATR_graphArray = 100*[0.0]
+        Clock.schedule_interval(self.get_value, 2)
 
     def stopHeartbeat(self):
         Clock.unschedule(self.get_value)
 
     def get_value(self, dt):
-        # serial receive 
-        testing = random.randint(100, size=(200))
-        self.plot.points = [(i, j) for i, j in enumerate(testing)]
+        #serialReceive()
+        global ATR_graphArray
+        ATR_graphArray.pop(0)
+        tupleInput = serialReceive()
+        atrGraphValue = tupleInput[0]*3.3
+        ventGraphValue = tupleInput[1]*3.3
+        print(atrGraphValue)
+        print(ventGraphValue)
+        ATR_graphArray.append(atrGraphValue)
+        self.plot.points = [(i, j) for i, j in enumerate(ATR_graphArray)]
 
     def closePopup(self):
         popupWindow.dismiss()
