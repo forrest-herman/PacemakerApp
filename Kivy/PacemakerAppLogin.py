@@ -160,7 +160,7 @@ class RegisterWindow(Screen):
 
 
 ## MainWindow ----------------------------------------
-
+ ### PULL THESE CHANGES>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 class MainWindow(Screen):
     currentUser = ObjectProperty(None)
     display_active_pacingMode = ObjectProperty(None)
@@ -173,6 +173,10 @@ class MainWindow(Screen):
     display_VentPulseWidth_parameter = ObjectProperty(None)
     display_VRP_parameter = ObjectProperty(None)
     display_ARP_parameter = ObjectProperty(None)
+    display_AtrSens_parameter = ObjectProperty(None)
+    display_VentSens_parameter = ObjectProperty(None)
+    display_reactionTime_parameter = ObjectProperty(None)
+    display_recoveryTime_parameter = ObjectProperty(None)
 
     #for later ### display_heartbeat_bpm = ObjectProperty(None) ## in progress
 
@@ -182,14 +186,15 @@ class MainWindow(Screen):
     ## Indicator for connected Hardware
     indicatorColour = ListProperty([1,0,0,1]) ## defaults to red, becomes green if connected
     
-    global pacingMode, LRL, URL, AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, VRP, ARP
-    pacingMode, LRL, URL, AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, VRP, ARP = 9*["Not Set"]
+    global pacingMode, LRL, URL, AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, VRP, ARP, AtrSens, VentSens, reactionTime, recoveryTime
+    pacingMode, LRL, URL, AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, VRP, ARP, AtrSens, VentSens, reactionTime, recoveryTime = 13*["Not Set"]
 
-    global paceLocation, sensingTrue, LRL_value, URL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value
+    global paceLocation, sensingTrue, rateAdaptiveTrue, LRL_value, URL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value, AtrSens_value, VentSens_value, reactionTime_value, recoveryTime_value
     ## uints
-    paceLocation, sensingTrue, LRL_value, URL_value = 4*[0]
+    paceLocation, sensingTrue, responseFactor, rateAdaptiveTrue, LRL_value, URL_value, reactionTime_value, recoveryTime_value = 8*[0]
+
     #floats
-    AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value = 6*[0.0]
+    AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value, AtrSens_value, VentSens_value = 8*[0.0]
 
     #global heartBPM #### in progress
     #global hardwareConnected
@@ -202,13 +207,19 @@ class MainWindow(Screen):
         self.currentUser.text = "Active User: " + userDatabase.get_user(self.currentUsername)[0]
         self.display_active_pacingMode.text = "Pacing Mode: " + pacingMode
         self.display_LRL_parameter.text = "Lower Rate Limit: " + LRL
-        self.display_URL_parameter.text = "Upper Rate Limit: " + URL
+        self.display_URL_parameter.text = "Maximum Sensor Rate: " + URL
         self.display_AtrAmp_parameter.text = "Atrium Aplitude: " + AtrAmp
         self.display_VentAmp_parameter.text = "Ventricle Amplitude: " + VentAmp
         self.display_AtrPulseWidth_parameter.text = "AtrPulseWidth: " + AtrPulseWidth
         self.display_VentPulseWidth_parameter.text = "VentPulseWidth: " + VentPulseWidth
         self.display_ARP_parameter.text = "Atrium Refractory Period: " + ARP
         self.display_VRP_parameter.text = "Ventricular Refractory Period: " + VRP
+        self.display_AtrSens_parameter.text = "AtrSensitivity: " + str(AtrSens)
+        self.display_VentSens_parameter.text = "VentSensitivity: " + str(VentSens)
+        self.display_reactionTime_parameter.text = "Reaction Time: " + str(reactionTime)
+        self.display_recoveryTime_parameter.text = "Recovery Time: " + str(recoveryTime)
+ ### PULL THESE CHANGES>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        
         #self.display_heartbeat_bpm.text = "BPM: " + str(heartBPM) ####  for later 
         
 
@@ -253,8 +264,8 @@ class MainWindow(Screen):
     # Saves the parameter data into the user_data.txt file to deploy in the future
     def deploy(self):
         self.file = open("user_data.txt", "w")
-        self.data = {URL_value, LRL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value,VentPulseWidth_value,VRP_value,ARP_value}
-        self.file.write( self.currentUsername + ";" + str(URL_value) + ";" + str(LRL_value) + ";" + str(AtrAmp_value) + ";" + str(VentAmp_value) + ";" + str(AtrPulseWidth_value) + ";" + str(VentPulseWidth_value) + ";" + str(VRP_value) + ";" + str(ARP_value) + "\n")
+        self.data = {URL_value, LRL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value, AtrSens_value, VentSens_value, reactionTime_value, recoveryTime}
+        self.file.write( self.currentUsername + ";" + str(URL_value) + ";" + str(LRL_value) + ";" + str(AtrAmp_value) + ";" + str(VentAmp_value) + ";" + str(AtrPulseWidth_value) + ";" + str(VentPulseWidth_value) + ";" + str(VRP_value) + ";" + str(ARP_value) + ";" + str(AtrSens_value) + ";" + str(VentSens_value) + ";" + str(reactionTime_value) + ";" + str(recoveryTime_value) + "\n")
         self.file.close()
 
     def load_data(self):
@@ -263,8 +274,8 @@ class MainWindow(Screen):
         self.data = {}
 
         for line in self.file:
-            self.currentUsername,LRL_value,URL_value,AtrAmp_value,VentAmp_value,AtrPulseWidth_value,VentPulseWidth_value,VRP_value,ARP_value = line.strip().split(";")
-            self.data[self.currentUsername] = (LRL_value,URL_value,AtrAmp_value,VentAmp_value,AtrPulseWidth_value,VentPulseWidth_value,VRP_value,ARP_value)
+            self.currentUsername, LRL_value, URL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value, AtrSens_value, VentSens_value, reactionTime_value, recoveryTime_value = line.strip().split(";")
+            self.data[self.currentUsername] = (LRL_value, URL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value,AtrSens_value, VentSens_value, reactionTime_value, recoveryTime_value)
         
         self.file.close()
 
@@ -272,9 +283,9 @@ class MainWindow(Screen):
         self.data = {}
         with open("user_data.txt", "w") as f:
             for user in self.data:
-                f.write(user + ";" + self.data[user][0] + ";" + self.data[user][1] + ";" + self.data[user][2] + ";" + self.data[user][3] + ";" + self.data[user][4] + ";" + self.data[user][5] + ";" + self.data[user][6] + ";" + self.data[user][7] + ";" + "\n")
+                f.write(user + ";" + self.data[user][0] + ";" + self.data[user][1] + ";" + self.data[user][2] + ";" + self.data[user][3] + ";" + self.data[user][4] + ";" + self.data[user][5] + ";" + self.data[user][6] + ";" + self.data[user][7] + ";" + self.data[user][8] + ";" + self.data[user][9] + ";" + self.data[user][10] + self.data[user][11] + "\n")
 
-   ### PULL THESE CHANGES>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+   ### PULL THESE CHANGES>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
         
 
     
@@ -310,7 +321,7 @@ class programmableParametersPopup(FloatLayout):
         manageWin.current = "welcomeWin"
         manageWin.current = "mainWin"
 
-### PULL THESE CHANGES>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+### PULL THESE CHANGES>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 # Popup for text input
 class textInputPopup(FloatLayout):
 
@@ -335,7 +346,7 @@ class textInputPopup(FloatLayout):
                 popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
                 popupWindow_paramError.open()
             else:
-                setMSR(num)
+                setURL(num)
 
         elif index == 3:
             if int(num) > 5 or int(num) < 0:
@@ -384,12 +395,131 @@ class textInputPopup(FloatLayout):
                 popupWindow_paramError.open()
             else:
                   setVRP(num)
+        
+        elif index == 9:
+            if float(num) > 3 or float(num) < 0:
+                show = paramErrorPopup()
+                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow_paramError.open()
+            else:
+                  setAtrSens(num)
+        
+        elif index == 10:
+            if float(num) > 3 or float(num) < 0:
+                show = paramErrorPopup()
+                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow_paramError.open()
+            else:
+                  setVentSens(num)
+        
+        elif index == 11:
+            if (float(num) > 50 or float(num) < 10):
+                show = paramErrorPopup()
+                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow_paramError.open()
+            else:
+                  setreactionTime(num)
+        
+        elif index == 12:
+            if float(num) > 960 or float(num) < 60:
+                show = paramErrorPopup()
+                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow_paramError.open()
+            else:
+                  setrecoveryTime(num)
 
     def closePopup(self):
         popupWindow_editParameter.dismiss()
         manageWin.transition = NoTransition()
         manageWin.current = "welcomeWin"
         manageWin.current = "mainWin"
+    
+    
+## Set programmable parameters
+def setLRL(num):
+    global LRL  ##text
+    global LRL_value ## uint
+    LRL_value = num
+    LRL = num + " BPM"   ##bpm rate between roughly 30 and 100
+    print("LRL: " + LRL)
+
+def setURL(num):
+    global URL  ##text
+    global URL_value ## uint
+    URL_value = num
+    URL = num + " BPM"   ##bpm rate between roughly 80 and 150
+    print("URL: " + URL)
+
+def setAtrAmp(num):
+    global AtrAmp  ##text
+    global AtrAmp_value ## single
+    AtrAmp_value = float(num)
+    AtrAmp = num + " V"   ##voltage between 0 and 5V
+    print("AtrAmp: " + AtrAmp)
+    
+def setAtrPulseWidth(num):
+    global AtrPulseWidth  ##text
+    global AtrPulseWidth_value ## single
+    AtrPulseWidth_value = float(num)
+    AtrPulseWidth = num + " ms"      ##time between ~1 to 30 msec
+    print("AtrPulseWidth: " + AtrPulseWidth)
+    
+def setVentAmp(num):
+    global VentAmp  ##text
+    global VentAmp_value ## single
+    VentAmp_value = float(num)
+    VentAmp = num + " V"   ##voltage between 0 and 5V
+    print("VentAmp: " + VentAmp)
+    
+def setVentPulseWidth(num):
+    global VentPulseWidth  ##text
+    global VentPulseWidth_value ## single
+    VentPulseWidth_value = float(num)
+    VentPulseWidth = num + " ms"    ##time between ~1 to 30 msec
+    print("VentPulseWidth: " + VentPulseWidth)
+    
+def setVRP(num):
+    global VRP  ##text
+    global VRP_value ## single
+    VRP_value = float(num)
+    VRP = num + " ms"           ##time between ~1 to 500 msec
+    print("VRP: " + VRP)
+    
+def setARP(num):
+    global ARP  ##text
+    global ARP_value ## single
+    ARP_value = float(num)
+    ARP = num + " ms"          ##time between ~1 to 500 msec
+    print("ARP: " + ARP)
+
+def setAtrSens(num):
+    global AtrSens
+    global AtrSens_value
+    AtrSens_value = float(num)
+    AtrSens = num + " V"          ##time between ~1 to 500 msec
+    print("AtrSensitivity: " + AtrSens)
+
+def setVentSens(num):
+    global VentSens
+    global VentSens_value
+    VentSens_value = float(num)
+    VentSens = num + " V"          ##time between ~1 to 500 msec
+    print("VentSensitivity: " + VentSens)
+
+def setreactionTime(num):
+    global reactionTime
+    global reactionTime_value
+    reactionTime_value = num
+    reactionTime = num + " ms"          ##time between ~1 to 500 msec
+    print("reactionTime: " + reactionTime)
+
+def setrecoveryTime(num):
+    global recoveryTime
+    global recoveryTime_value
+    recoveryTime_value = num
+    recoveryTime = num + " V"          ##time between ~1 to 500 msec
+    print("recoveryTime: " + recoveryTime)
+
 ### PULL THESE CHANGES>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 ## Generic Errors
@@ -434,51 +564,6 @@ def setPacingModetext(mode):
     global hardwareConnected
     hardwareConnected = True
     ## testing end
-
-
-## Set programmable parameters
-def setLRL(num):
-    global LRL  ## double
-    LRL = num + " BPM"   ##bpm rate between roughly 30 and 100
-    print("LRL: " + LRL)
-
-def setURL(num):
-    global URL  ## double
-    URL = num + " BPM"   ##bpm rate between roughly 80 and 150
-    print("URL: " + URL)
-
-def setAtrAmp(num):
-    global AtrAmp
-    AtrAmp = num + " V"   ##voltage between 0 and 5V
-    print("AtrAmp: " + AtrAmp)
-    
-def setAtrPulseWidth(num):
-    global AtrPulseWidth
-    AtrPulseWidth = num + " ms"      ##time between ~1 to 30 msec
-    print("AtrPulseWidth: " + AtrPulseWidth)
-    
-def setVentAmp(num):
-    global VentAmp
-    VentAmp = num + " V"   ##voltage between 0 and 5V
-    print("VentAmp: " + VentAmp)
-    
-def setVentPulseWidth(num):
-    global VentPulseWidth
-    VentPulseWidth = num + " ms"    ##time between ~1 to 30 msec
-    print("VentPulseWidth: " + VentPulseWidth)
-    
-def setVRP(num):
-    global VRP
-    VRP = num + " ms"           ##time between ~1 to 500 msec
-    print("VRP: " + VRP)
-    
-def setARP(num):
-    global ARP
-    ARP = num + " ms"          ##time between ~1 to 500 msec
-    print("ARP: " + ARP)
-
-
-
 
 
 ## Initialize the Popups ---------------------------------------------------------------------------------------------------------------------------------------------------------
