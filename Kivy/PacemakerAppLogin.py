@@ -47,30 +47,33 @@ def serialConnect():
         if (notConnected == False): 
             hardwareConnected = True
             print(port[i] + " connected")
+            pacemaker_serial.flush()
             break
 
 
 #pacemaker_serial = serial.Serial(port="COM7", baudrate=115200,timeout=1)
 
 def serialSend():
-    ## order of transmission: paceLocation, sensingTrue, LRL,   URL,    AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, ARP,    VRP     
-    ## types of transmission: u char        u char       uchar  uchar   float   float    float          float           float   float
     AtrAmp_DutyCycle = AtrAmp_value/5.0 *100
     VentAmp_DutyCycle = VentAmp_value/5.0 *100
-    serialSend = struct.pack('<BBBBBBffffff',0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(URL_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value) ## byte list of length 30 bytes
+    AtrSens_DutyCycle = AtrSens_value/3.3 *100
+    VentSens_DutyCycle = VentSens_value/3.3 *100
+    ## order of transmission: paceLocation, sensingTrue, LRL,   URL,    AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, ARP,    VRP     AtrSens,    VentSens
+    ## types of transmission: u char        u char       uchar  uchar   float   float    float          float           float   float   float       float
+    serialSend = struct.pack('<BBBBBBffffffff',0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(URL_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value, AtrSens_DutyCycle, VentSens_DutyCycle) ## byte list of length 38 bytes
     pacemaker_serial.write(serialSend)
     print(len(serialSend))
-    print(serialSend)
-    print(serialSend.hex())
-    print([0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(URL_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value])
+    #print(serialSend)
+    #print(serialSend.hex())
+    print([0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(URL_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value, AtrSens_DutyCycle,VentSens_DutyCycle])
+
+def serialRequest():
+    serialRequest = struct.pack('<BBBBBBffffffff',0x16,0x22, 0, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0) ## byte list of length 38 bytes
+    pacemaker_serial.write(serialRequest)
 
 def serialReceive():
-    serialRequest = struct.pack('<BBBBBBffffff',0x16,0x22, 0, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0) ## byte list of length 30 bytes
-    pacemaker_serial.write(serialRequest)
-    #print(struct.unpack('dd',pacemaker_serial.read(16)))
-    #print(pacemaker_serial.read(16).hex())
-    #print(struct.unpack('<dd',pacemaker_serial.read(16)))
-    return struct.unpack('<dd',pacemaker_serial.read(16))
+    inputRead = struct.unpack('<ff',pacemaker_serial.read(8)) # 2 floats
+    return inputRead
 
 
 ## Declare all the Screens ----------------------------------------------------------------------
@@ -191,7 +194,7 @@ class RegisterWindow(Screen):
 
 
 ## MainWindow ----------------------------------------
- ### PULL THESE CHANGES>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 class MainWindow(Screen):
     currentUser = ObjectProperty(None)
     display_active_pacingMode = ObjectProperty(None)
@@ -303,6 +306,7 @@ class MainWindow(Screen):
         self.data = {URL_value, LRL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value, AtrSens_value, VentSens_value, reactionTime_value, recoveryTime}
         self.file.write(self.currentUsername + ";" + str(URL_value) + ";" + str(LRL_value) + ";" + str(AtrAmp_value) + ";" + str(VentAmp_value) + ";" + str(AtrPulseWidth_value) + ";" + str(VentPulseWidth_value) + ";" + str(VRP_value) + ";" + str(ARP_value) + ";" + str(AtrSens_value) + ";" + str(VentSens_value) + ";" + str(reactionTime_value) + ";" + str(recoveryTime_value) + "\n")
         self.file.close()
+        serialSend()
 
 
     # Saves the parameter data into the user_data.txt file to deploy in the future
@@ -316,7 +320,6 @@ class MainWindow(Screen):
             self.data[self.currentUsername] = (LRL_value, URL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value,AtrSens_value, VentSens_value, reactionTime_value, recoveryTime_value)
         
         self.file.close()
-        serialSend()
         #else, throw error!
     
 
@@ -357,34 +360,41 @@ class heartbeatGraphPopup(FloatLayout):
         self.plot2 = MeshLinePlot(color=[1, 0, 0, 1])
     
     def startHeartbeat(self):
-        global ATR_graphArray ## add VENT_graphArray
-        ATR_graphArray = 100*[0.0]
+        serialRequest()
+
+        global ATR_graphArray, VENT_graphArray
+        ATR_graphArray = 150*[0.0]
+        VENT_graphArray = 150*[0.0]
+
         self.ids.graphAtr.add_plot(self.plot1)
-        Clock.schedule_interval(self.get_value_atr, 2) ### error if less than 2
+        Clock.schedule_interval(self.get_value_atr, 0.005)
 
         self.ids.graphVent.add_plot(self.plot2)
-        Clock.schedule_interval(self.get_value_vent, 0.001)
+        Clock.schedule_interval(self.get_value_vent, 0.005)
+
 
     def stopHeartbeat(self):
         Clock.unschedule(self.get_value_atr)
         Clock.unschedule(self.get_value_vent)
 
     def get_value_atr(self, dt):
-        #serialReceive()
-        global ATR_graphArray
-        ATR_graphArray.pop(0)
+        #time.sleep(0.5) #how long does it take to accumulate data
+        global ATR_graphArray,tupleInput
+        
         tupleInput = serialReceive()
-        atrGraphValue = tupleInput[0]*3.3
-        ventGraphValue = tupleInput[1]*3.3
-        print(atrGraphValue)
-        print(ventGraphValue)
-        ATR_graphArray.append(atrGraphValue)
+        serialRequest()
+        print(tupleInput)
+        ATR_graphArray.pop(0)
+        ATR_graphArray.append(tupleInput[0]) ## 0 = -3.3 V || 0.5 = 0 V || 1 = 3.3 V
         self.plot1.points = [(i, j) for i, j in enumerate(ATR_graphArray)]
+
         
     def get_value_vent(self, dt):
-        # serial receive 
-        testing = random.randint(100, size=(200))
-        self.plot2.points = [(i, j) for i, j in enumerate(testing)]
+        # serial receive
+        global VENT_graphArray,tupleInput
+        VENT_graphArray.pop(0)
+        VENT_graphArray.append(tupleInput[1])
+        self.plot2.points = [(i, j) for i, j in enumerate(VENT_graphArray)]
 
     def closePopup(self):
         popupWindow.dismiss()
@@ -410,7 +420,7 @@ class programmableParametersPopup(FloatLayout):
         manageWin.current = "welcomeWin"
         manageWin.current = "mainWin"
 
-### PULL THESE CHANGES>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 # Popup for text input
 class textInputPopup(FloatLayout):
 
@@ -432,7 +442,7 @@ class textInputPopup(FloatLayout):
 
         ## URL -------
         elif index == 2:
-            if int(num) > 150 or int(num) < 60:
+            if int(num) > 180 or int(num) < 60:
                 show = paramErrorPopup()
                 popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
                 popupWindow_paramError.open()
@@ -502,7 +512,7 @@ class textInputPopup(FloatLayout):
                   setAtrSens(num)
         
         elif index == 10:
-            if float(num) > 3 or float(num) < 0:
+            if float(num) > 3.3 or float(num) < 0:
                 show = paramErrorPopup()
                 popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
                 popupWindow_paramError.open()

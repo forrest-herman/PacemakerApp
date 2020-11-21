@@ -571,11 +571,25 @@
                     id: graphAtr
                     xlabel: "Time"
                     ylabel: "Voltage"
+                    xmin: 0
+                    xmax: 150
+                    ymin:-1
+                    ymax:1
+                    x_ticks_major:25
+                    y_ticks_major:0.1
+                    #graph = Graph(xlabel='X', ylabel='Y', x_ticks_minor=5,
+                    #x_ticks_major=25, y_ticks_major=1,
+                    #y_grid_label=True, x_grid_label=True, padding=5,
+                    #x_grid=True, y_grid=True, xmin=-0, xmax=100, ymin=-1, ymax=1
 
                 Graph:
                     id: graphVent
                     xlabel: "Time"
                     ylabel: "Voltage"
+                    xmin: 0
+                    xmax: 150
+                    ymin:-1
+                    ymax:1
 
             GridLayout:
                 size_hint_y: 0.4
