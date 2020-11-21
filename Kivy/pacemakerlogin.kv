@@ -254,6 +254,10 @@
     display_VentPulseWidth_parameter:VentPulseWidth_parameterText
     display_ARP_parameter:ARP_parameterText
     display_VRP_parameter:VRP_parameterText
+    display_AtrSens_parameter:AtrSens_parameterText
+    display_VentSens_parameter:VentSens_parameterText
+    display_reactionTime_parameter:reactionTime_parameterText
+    display_recoveryTime_parameter:recoveryTime_parameterText
 
     #display_heartbeat_bpm:heartBPM_text  ####  for later
 
@@ -335,6 +339,16 @@
             size_hint:0.4,0.1
             pos_hint: {"center_x":0.5, "top":0.13}
             on_press: root.deploy()
+            #on_press: root.load_data()
+           #on_press: root.save_data()
+        
+        ## Save Button 
+        #Button:
+        #    text: "Save Parameters"
+        #    size_hint:0.2,0.1
+        #    pos_hint: {"center_x":1, "top":0.13}
+        #    on_press: root.save()
+            
 
 
         ## Display all programmable parameters -------------------------------
@@ -412,6 +426,38 @@
                 halign: 'left'
                 pos_hint: {'x': 0}
                 size_hint_x: 0.5
+            
+            Label:
+                id:AtrSens_parameterText
+                text: ""
+                font_size: 18
+                halign: 'left'
+                pos_hint: {'x': 0}
+                size_hint_x: 0.5
+            
+            Label:
+                id:VentSens_parameterText
+                text: ""
+                font_size: 18
+                halign: 'left'
+                pos_hint: {'x': 0}
+                size_hint_x: 0.5
+            
+            Label:
+                id:reactionTime_parameterText
+                text: ""
+                font_size: 18
+                halign: 'left'
+                pos_hint: {'x': 0}
+                size_hint_x: 0.5
+            
+            Label:
+                id:recoveryTime_parameterText
+                text: ""
+                font_size: 18
+                halign: 'left'
+                pos_hint: {'x': 0}
+                size_hint_x: 0.5
 
 
         ## BPM Display for later
@@ -437,7 +483,7 @@
 
             GridLayout:
                 size_hint_y: 0.8
-                rows: 5 # number of modes
+                rows: 11 # number of modes
                 spacing: 10
                 
                 Button:
@@ -463,6 +509,36 @@
                     text:"VVI"
                     on_press: 
                         root.setPacingMode("VVI")
+                        root.closePopup()
+                
+                Button:
+                    text:"DOO"
+                    on_press: 
+                        root.setPacingMode("DOO")
+                        root.closePopup()
+                
+                Button:
+                    text:"AOOR"
+                    on_press: 
+                        root.setPacingMode("AOOR")
+                        root.closePopup()
+                
+                Button:
+                    text:"VOOR"
+                    on_press: 
+                        root.setPacingMode("VOOR")
+                        root.closePopup()
+                
+                Button:
+                    text:"AAIR"
+                    on_press: 
+                        root.setPacingMode("AAIR")
+                        root.closePopup()
+                
+                Button:
+                    text:"VVIR"
+                    on_press: 
+                        root.setPacingMode("DOOR")
                         root.closePopup()
 
                 # Button:
@@ -533,8 +609,8 @@
 
             GridLayout:
                 size_hint_y: 0.9
-                rows: 8 # number of programmable parameters
-                spacing: 8
+                rows: 12 # number of programmable parameters
+                spacing: 6
                 
                 Button:
                     text:"Lower Rate Limit"
@@ -543,10 +619,10 @@
                         root.open_textInput("Please enter desired LRL value")
 
                 Button:
-                    text:"Upper Rate Limit"
+                    text:"Maximum Sensor Rate"
                     on_press: 
                         root.setIndex(2) #index to keep track of which button was pressed
-                        root.open_textInput("Please enter desired URL value")
+                        root.open_textInput("Please enter desired MSR value")
 
                 Button:
                     text:"Atrial Amplitude"
@@ -584,7 +660,37 @@
                         root.setIndex(8) #index to keep track of which button was pressed
                         root.open_textInput("Please enter desired VRP value")
                 
+                Button:
+                    text:"Atrium Sensitivity"
+                    on_press: 
+                        root.setIndex(9) #index to keep track of which button was pressed
+                        root.open_textInput("Please enter desired AtrSens value")
+                
+                Button:
+                    text:"Ventricle Sensitivity"
+                    on_press: 
+                        root.setIndex(10) #index to keep track of which button was pressed
+                        root.open_textInput("Please enter desired VentSens value")
+                
+                Button:
+                    text:"Reaction Time"
+                    on_press: 
+                        root.setIndex(11) #index to keep track of which button was pressed
+                        root.open_textInput("Please enter desired reaction time value")
+                
+                Button:
+                    text:"Recovery Time"
+                    on_press: 
+                        root.setIndex(12) #index to keep track of which button was pressed
+                        root.open_textInput("Please enter desired recovery value")
+                
+                # Button:
+                #     text:"Upper Rate Limit"
+                #     on_press: 
+                #         root.setIndex(9) #index to keep track of which button was pressed
+                #         root.open_textInput("Please enter desired URL value")
 
+                
 
             GridLayout:
                 rows:1
@@ -636,6 +742,19 @@
 
     Button:
         text:"Ok"
+        size_hint:0.6,0.3
+        pos_hint: {"x":0.2, "top":0.4}
+        on_press: root.closePopup()
+
+<paramErrorPopup>:
+    size:500,400
+    Label:
+        text: "Given value is not acceptable"
+        size_hint:0.3,0.2
+        pos_hint: {"x":0.35, "center_y":0.7}
+    
+    Button:
+        text: "Ok"
         size_hint:0.6,0.3
         pos_hint: {"x":0.2, "top":0.4}
         on_press: root.closePopup()
