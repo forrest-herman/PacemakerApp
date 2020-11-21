@@ -517,7 +517,7 @@ def setrecoveryTime(num):
     global recoveryTime
     global recoveryTime_value
     recoveryTime_value = num
-    recoveryTime = num + " V"          ##time between ~1 to 500 msec
+    recoveryTime = num + " ms"          ##time between ~1 to 500 msec
     print("recoveryTime: " + recoveryTime)
 
 ### PULL THESE CHANGES>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
