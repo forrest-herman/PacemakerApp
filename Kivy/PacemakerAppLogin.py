@@ -63,14 +63,13 @@ def serialSend():
     print(serialSend)
     print(serialSend.hex())
     print([0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(URL_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value])
-
+    
 def serialReceive():
-    serialRequest = struct.pack('<BBBBBBffffff',0x16,0x22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) ## byte list of length 30 bytes
-    pacemaker_serial.read(serialRequest)
-    print(len(serialRequest))
-    print(serialRequest)
-    print(serialRequest.hex())
-    print([0x16,0x22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    serialRequest = struct.pack('<BBBBBBffffff',0x16,0x22, 0, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0) ## byte list of length 30 bytes
+    pacemaker_serial.write(serialRequest)
+    print(pacemaker_serial.read(8))
+    ATR_receive = float(pacemaker_serial.read(4))
+    return ATR_receive
 
 ## Declare all the Screens ----------------------------------------------------------------------
 
