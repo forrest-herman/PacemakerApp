@@ -1,1 +1,1 @@
-A;100 BPM;Not Set;Not Set;Not Set;Not Set;Not Set;Not Set;Not Set
+A;0;0;0.0;0.0;0.0;0.0;0.0;0.0

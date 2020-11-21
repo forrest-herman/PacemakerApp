@@ -335,6 +335,16 @@
             size_hint:0.4,0.1
             pos_hint: {"center_x":0.5, "top":0.13}
             on_press: root.deploy()
+            on_press: root.load_data()
+            on_press: root.save_data()
+        
+        ## Save Button 
+        #Button:
+        #    text: "Save Parameters"
+        #    size_hint:0.2,0.1
+        #    pos_hint: {"center_x":1, "top":0.13}
+        #    on_press: root.save()
+            
 
 
         ## Display all programmable parameters -------------------------------
@@ -437,7 +447,7 @@
 
             GridLayout:
                 size_hint_y: 0.8
-                rows: 5 # number of modes
+                rows: 11 # number of modes
                 spacing: 10
                 
                 Button:
@@ -463,6 +473,36 @@
                     text:"VVI"
                     on_press: 
                         root.setPacingMode("VVI")
+                        root.closePopup()
+                
+                Button:
+                    text:"DOO"
+                    on_press: 
+                        root.setPacingMode("DOO")
+                        root.closePopup()
+                
+                Button:
+                    text:"AOOR"
+                    on_press: 
+                        root.setPacingMode("AOOR")
+                        root.closePopup()
+                
+                Button:
+                    text:"VOOR"
+                    on_press: 
+                        root.setPacingMode("VOOR")
+                        root.closePopup()
+                
+                Button:
+                    text:"AAIR"
+                    on_press: 
+                        root.setPacingMode("AAIR")
+                        root.closePopup()
+                
+                Button:
+                    text:"VVIR"
+                    on_press: 
+                        root.setPacingMode("DOOR")
                         root.closePopup()
 
                 # Button:
@@ -543,10 +583,10 @@
                         root.open_textInput("Please enter desired LRL value")
 
                 Button:
-                    text:"Upper Rate Limit"
+                    text:"Maximum Sensor Rate"
                     on_press: 
                         root.setIndex(2) #index to keep track of which button was pressed
-                        root.open_textInput("Please enter desired URL value")
+                        root.open_textInput("Please enter desired MSR value")
 
                 Button:
                     text:"Atrial Amplitude"
@@ -584,6 +624,11 @@
                         root.setIndex(8) #index to keep track of which button was pressed
                         root.open_textInput("Please enter desired VRP value")
                 
+                # Button:
+                #     text:"Upper Rate Limit"
+                #     on_press: 
+                #         root.setIndex(9) #index to keep track of which button was pressed
+                #         root.open_textInput("Please enter desired URL value")
 
 
             GridLayout:
@@ -636,6 +681,19 @@
 
     Button:
         text:"Ok"
+        size_hint:0.6,0.3
+        pos_hint: {"x":0.2, "top":0.4}
+        on_press: root.closePopup()
+
+<paramErrorPopup>:
+    size:500,400
+    Label:
+        text: "Given value is not acceptable"
+        size_hint:0.3,0.2
+        pos_hint: {"x":0.35, "center_y":0.7}
+    
+    Button:
+        text: "Ok"
         size_hint:0.6,0.3
         pos_hint: {"x":0.2, "top":0.4}
         on_press: root.closePopup()

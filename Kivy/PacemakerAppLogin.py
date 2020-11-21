@@ -94,7 +94,7 @@ class WelcomeWindow(Screen):
 
 
 
-## LoginWindow ----------------------------------------
+## LoginWindow ---------------------------------------------------------------
 
 class LoginWindow(Screen):
     nameField = ObjectProperty(None)
@@ -130,7 +130,7 @@ class LoginWindow(Screen):
         self.passwField.text = ""
 
 
-## RegisterWindow ----------------------------------------
+## RegisterWindow --------------------------------------------------------------------------------
 
 class RegisterWindow(Screen):
     firstName_Field = ObjectProperty(None)
@@ -234,20 +234,21 @@ class MainWindow(Screen):
         self.currentUser.text = "Active User: " + userDatabase.get_user(self.currentUsername)[0]
         self.display_active_pacingMode.text = "Pacing Mode: " + pacingMode
         self.display_LRL_parameter.text = "Lower Rate Limit: " + LRL
-        self.display_URL_parameter.text = "Upper Rate Limit: " + URL
+        self.display_URL_parameter.text = "Maximum Sensor Rate: " + URL
         self.display_AtrAmp_parameter.text = "Atrium Aplitude: " + AtrAmp
         self.display_VentAmp_parameter.text = "Ventricle Amplitude: " + VentAmp
         self.display_AtrPulseWidth_parameter.text = "AtrPulseWidth: " + AtrPulseWidth
         self.display_VentPulseWidth_parameter.text = "VentPulseWidth: " + VentPulseWidth
         self.display_ARP_parameter.text = "Atrium Refractory Period: " + ARP
         self.display_VRP_parameter.text = "Ventricular Refractory Period: " + VRP
-        #self.display_heartbeat_bpm.text = "BPM: " + str(heartBPM) ####  for later 
+        ##add new parameters
+        #self.display_URL_parameter.text = "Upper Rate Limit: " + URL
 
         ## set hardware connected indicator
-        if(hardwareConnected):
-            self.indicatorColour = [0,1,0,1] ## green
-        else: 
-            self.indicatorColour = [1,0,0,1] ## defaults to red
+        #if(hardwareConnected):
+            #self.indicatorColour = [0,1,0,1] ## green
+        #else: 
+            #self.indicatorColour = [1,0,0,1] ## defaults to red
 
     def logout(self):
         #edit transition
@@ -290,22 +291,43 @@ class MainWindow(Screen):
     def deploy(self):
         #if all values not zero
         self.file = open("user_data.txt", "w")
+        self.data = {URL_value, LRL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value,VentPulseWidth_value,VRP_value,ARP_value}
+        self.file.write( self.currentUsername + ";" + str(URL_value) + ";" + str(LRL_value) + ";" + str(AtrAmp_value) + ";" + str(VentAmp_value) + ";" + str(AtrPulseWidth_value) + ";" + str(VentPulseWidth_value) + ";" + str(VRP_value) + ";" + str(ARP_value) + "\n")
+        self.file.close()
+
+
+    # Saves the parameter data into the user_data.txt file to deploy in the future
+    def load_data(self):
+
+        self.file = open("user_data.txt", "r")
         self.data = {}
-        self.file.write(self.currentUsername + ";" + str(LRL_value) + ";" + str(URL_value) + ";" + str(AtrAmp_value) + ";" + str(VentAmp_value) + ";" + str(AtrPulseWidth_value) + ";" + str(VentPulseWidth_value) + ";" + str(VRP_value) + ";" + str(ARP_value) + "\n")
+
+        for line in self.file:
+            self.currentUsername,LRL_value,URL_value,AtrAmp_value,VentAmp_value,AtrPulseWidth_value,VentPulseWidth_value,VRP_value,ARP_value = line.strip().split(";")
+            self.data[self.currentUsername] = (LRL_value,URL_value,AtrAmp_value,VentAmp_value,AtrPulseWidth_value,VentPulseWidth_value,VRP_value,ARP_value)
+        
         self.file.close()
         serialSend()
         #else, throw error!
     
 
+    def save_data(self):
+        self.data = {}
+        with open("user_data.txt", "w") as f:
+            for user in self.data:
+                f.write(user + ";" + self.data[user][0] + ";" + self.data[user][1] + ";" + self.data[user][2] + ";" + self.data[user][3] + ";" + self.data[user][4] + ";" + self.data[user][5] + ";" + self.data[user][6] + ";" + self.data[user][7] + ";" + "\n")
+
+        
     def serialConnectMain(self):
         serialConnect()
         if(hardwareConnected):
             self.indicatorColour = [0,1,0,1] ## green
         else: 
             self.indicatorColour = [1,0,0,1] ## defaults to red
+
     
 
-## Declare all Popups Layout Classes ----------------------------------------------------------------------
+## Declare all Popups Layout Classes -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ## Main page popups
 class modeSelectorPopup(FloatLayout):
@@ -379,6 +401,7 @@ class programmableParametersPopup(FloatLayout):
         manageWin.current = "welcomeWin"
         manageWin.current = "mainWin"
 
+### PULL THESE CHANGES>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 # Popup for text input
 class textInputPopup(FloatLayout):
 
@@ -387,77 +410,77 @@ class textInputPopup(FloatLayout):
     # Check which parameter is being changed and set it to the text inputted
     def selectProgParam(self):
         num = self.inputField.text
+        global popupWindow_paramError
 
         ## LRL -------
         if index == 1:
             if int(num) > 150 or int(num) < 40:
-                show = errorPopup()
-                global popupWindow
-                popupWindow = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                popupWindow.open()
+                show = paramErrorPopup()
+                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow_paramError.open()
             else:
                 setLRL(num) ##typecast float to int
 
         ## URL -------
         elif index == 2:
             if int(num) > 150 or int(num) < 60:
-                show = errorPopup()
-                popupWindow = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                popupWindow.open()
+                show = paramErrorPopup()
+                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow_paramError.open()
             else:
-                setURL(num) ##typecast float to int
+                setMSR(num) ##typecast float to int
 
         ## AtrAmp -------
         elif index == 3:
             if int(num) > 5 or int(num) < 0:
-                show = errorPopup()
-                popupWindow = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                popupWindow.open()
+                show = paramErrorPopup()
+                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow_paramError.open()
             else:
                 setAtrAmp(num)
 
         ## AtrPulseWidth -------
         elif index == 4:
             if float(num) > 100 or float(num) < 0:
-                show = errorPopup()
-                popupWindow = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                popupWindow.open()
+                show = paramErrorPopup()
+                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow_paramError.open()
             else:
                 setAtrPulseWidth(num)
 
         ## ARP -------
         elif index == 5:
             if float(num) > 600 or float(num) < 0:
-                show = errorPopup()
-                popupWindow = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                popupWindow.open()
+                show = paramErrorPopup()
+                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow_paramError.open()
             else:
                 setARP(num)
 
         ## VentAmp -------
         elif index == 6:
             if int(num) > 5 or int(num) < 0:
-                show = errorPopup()
-                popupWindow = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                popupWindow.open()
+                show = paramErrorPopup()
+                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow_paramError.open()
             else:
                  setVentAmp(num)
 
         ## VentPulseWidth -------
         elif index == 7:
             if float(num) > 100 or float(num) < 0:
-                show = errorPopup()
-                popupWindow = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                popupWindow.open()
+                show = paramErrorPopup()
+                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow_paramError.open()
             else:
                   setVentPulseWidth(num)
 
         ## VRP -------
         elif index == 8:
             if float(num) > 600 or float(num) < 0:
-                show = errorPopup()
-                popupWindow = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                popupWindow.open()
+                show = paramErrorPopup()
+                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow_paramError.open()
             else:
                   setVRP(num)
 
@@ -466,7 +489,7 @@ class textInputPopup(FloatLayout):
         manageWin.transition = NoTransition()
         manageWin.current = "welcomeWin"
         manageWin.current = "mainWin"
-
+### PULL THESE CHANGES>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 ## Generic Errors
 class errorPopup(FloatLayout):
@@ -477,6 +500,10 @@ class errorPopup(FloatLayout):
 class errorMaxPopup(FloatLayout):
     def closePopup(self):
         popupWindow.dismiss()
+
+class paramErrorPopup(FloatLayout):
+    def closePopup(self):
+        popupWindow_paramError.dismiss()
 
 ## Auto-timout Popup
 class successPopup(FloatLayout):
@@ -491,7 +518,7 @@ class successPopup(FloatLayout):
 
 
 
-## Global Vars and Functions ----------------------------------------------------------------------
+## Global Vars and Functions -----------------------------------------------------------------------------------------------------------------
 
 ## Set pacing mode
 def setPacingModetext(mode):
@@ -525,7 +552,7 @@ def setLRL(num):
     LRL = num + " BPM"   ##bpm rate between roughly 30 and 100
     print("LRL: " + LRL)
 
-def setURL(num):
+def setMSR(num):
     global URL  ##text
     global URL_value ## uint
     URL_value = num
@@ -617,14 +644,14 @@ def userDeleted():
 
 
 
-## WindowManager --------------------------------------------
+## WindowManager ------------------------------------------------------------------------------------------------------------------------------------
 
 class WindowManager(ScreenManager):
     pass
 
 manageWin = WindowManager(transition=SlideTransition())
 
-## Add all the pages ------------------------------------------
+## Add all the pages ------------------------------------------------------------------------------------------------------------------------------
 manageWin.add_widget(WelcomeWindow(name="welcomeWin"))
 manageWin.add_widget(LoginWindow(name="loginWin"))
 manageWin.add_widget(RegisterWindow(name="registerWin"))
