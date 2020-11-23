@@ -229,8 +229,6 @@ class MainWindow(Screen):
     #floats
     AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value, AtrSens_value, VentSens_value = 8*[0.0]
 
-    #global heartBPM #### in progress
-    #heartBPM = 100 ## temporary
 
     global hardwareConnected
     hardwareConnected = False
@@ -255,12 +253,12 @@ class MainWindow(Screen):
         #self.display_URL_parameter.text = "Upper Rate Limit: " + URL
         
 
-
         ## set hardware connected indicator
-        #if(hardwareConnected):
-            #self.indicatorColour = [0,1,0,1] ## green
-        #else: 
-            #self.indicatorColour = [1,0,0,1] ## defaults to red
+        if(hardwareConnected):
+            self.indicatorColour = [0,1,0,1] ## green
+        else: 
+            self.indicatorColour = [1,0,0,1] ## defaults to red
+
 
     def logout(self):
         #edit transition
@@ -298,10 +296,21 @@ class MainWindow(Screen):
         global popupWindow
         popupWindow = Popup(title="Current Heartbeat", content=show,size_hint=(None,None), size=(1000,1000))
         popupWindow.open()
-            
+
+
+    def serialConnectMain(self):
+        serialConnect()
+        if(hardwareConnected):
+            self.indicatorColour = [0,1,0,1] ## green
+        else: 
+            self.indicatorColour = [1,0,0,1] ## defaults to red
+
+
     ## Saves the parameter data into the user_data.txt file to deploy in the future
     def deploy(self):
-        #if all values not zero
+        #add if all values not zero
+        #add if statement/try/except to catch possible errors
+
         self.file = open("user_data.txt", "w")
         self.data = {URL_value, LRL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value, AtrSens_value, VentSens_value, reactionTime_value, recoveryTime}
         self.file.write(self.currentUsername + ";" + str(URL_value) + ";" + str(LRL_value) + ";" + str(AtrAmp_value) + ";" + str(VentAmp_value) + ";" + str(AtrPulseWidth_value) + ";" + str(VentPulseWidth_value) + ";" + str(VRP_value) + ";" + str(ARP_value) + ";" + str(AtrSens_value) + ";" + str(VentSens_value) + ";" + str(reactionTime_value) + ";" + str(recoveryTime_value) + "\n")
@@ -320,7 +329,6 @@ class MainWindow(Screen):
             self.data[self.currentUsername] = (LRL_value, URL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value,AtrSens_value, VentSens_value, reactionTime_value, recoveryTime_value)
         
         self.file.close()
-        #else, throw error!
     
 
     def save_data(self):
@@ -328,14 +336,47 @@ class MainWindow(Screen):
         with open("user_data.txt", "w") as f:
             for user in self.data:
                 f.write(user + ";" + self.data[user][0] + ";" + self.data[user][1] + ";" + self.data[user][2] + ";" + self.data[user][3] + ";" + self.data[user][4] + ";" + self.data[user][5] + ";" + self.data[user][6] + ";" + self.data[user][7] + ";" + self.data[user][8] + ";" + self.data[user][9] + ";" + self.data[user][10] + self.data[user][11] + "\n")
+   
 
+    def loadPrevious(self):
 
-    def serialConnectMain(self):
-        serialConnect()
-        if(hardwareConnected):
-            self.indicatorColour = [0,1,0,1] ## green
-        else: 
-            self.indicatorColour = [1,0,0,1] ## defaults to red
+        self.file = open("user_data.txt", "r")
+        self.data = {}
+
+        for line in self.file:
+            self.currentUsername, LRL_value, URL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value, AtrSens_value, VentSens_value, reactionTime_value, recoveryTime_value = line.strip().split(";")
+            self.data[self.currentUsername] = (LRL_value, URL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value,AtrSens_value, VentSens_value, reactionTime_value, recoveryTime_value)
+        
+        setLRL(LRL_value)
+        setURL(URL_value)
+        setAtrAmp(AtrAmp_value)
+        setVentAmp(VentAmp_value)
+        setAtrPulseWidth(AtrPulseWidth_value)
+        setVentPulseWidth(VentPulseWidth_value)
+        setVRP(VRP_value)
+        setARP(ARP_value)
+        setAtrSens(AtrSens_value)
+        setVentSens(VentSens_value)
+        setreactionTime(reactionTime_value)
+        setrecoveryTime(recoveryTime_value)
+
+        self.currentUser.text = "Active User: " + userDatabase.get_user(self.currentUsername)[0]
+        self.display_active_pacingMode.text = "Pacing Mode: " + pacingMode
+        self.display_LRL_parameter.text = "Lower Rate Limit: " + LRL
+        self.display_URL_parameter.text = "Maximum Sensor Rate: " + URL
+        self.display_AtrAmp_parameter.text = "Atrium Aplitude: " + AtrAmp
+        self.display_VentAmp_parameter.text = "Ventricle Amplitude: " + VentAmp
+        self.display_AtrPulseWidth_parameter.text = "AtrPulseWidth: " + AtrPulseWidth
+        self.display_VentPulseWidth_parameter.text = "VentPulseWidth: " + VentPulseWidth
+        self.display_ARP_parameter.text = "Atrium Refractory Period: " + ARP
+        self.display_VRP_parameter.text = "Ventricular Refractory Period: " + VRP
+        self.display_AtrSens_parameter.text = "AtrSensitivity: " + AtrSens
+        self.display_VentSens_parameter.text = "VentSensitivity: " + VentSens
+        self.display_reactionTime_parameter.text = "Reaction Time: " + reactionTime
+        self.display_recoveryTime_parameter.text = "Recovery Time: " + recoveryTime
+
+        self.file.close()
+        
 
     
 
@@ -627,7 +668,7 @@ def setrecoveryTime(num):
     recoveryTime = num + " ms"          ##time between ~1 to 500 msec
     print("recoveryTime: " + recoveryTime)
 
-### PULL THESE CHANGES>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 
 ## Generic Errors
 class errorPopup(FloatLayout):
