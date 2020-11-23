@@ -267,6 +267,7 @@ class MainWindow(Screen):
         manageWin.current = "welcomeWin"
         ## popup "Logout Successful"
         signOut_Complete()
+
     
     ## Option to delete account
     def deleteAccount(self):
@@ -292,11 +293,13 @@ class MainWindow(Screen):
 
     ## Heartbeat Graph Popup window is displayed
     def open_heartbeatGraph(self):
-        show = heartbeatGraphPopup()
-        global popupWindow
-        popupWindow = Popup(title="Current Heartbeat", content=show,size_hint=(None,None), size=(1000,1000))
-        popupWindow.open()
-
+        if(hardwareConnected):
+            show = heartbeatGraphPopup()
+            global popupWindow
+            popupWindow = Popup(title="Current Heartbeat", content=show,size_hint=(None,None), size=(1000,1000))
+            popupWindow.open()
+        else: 
+            noDeviceError()
 
     def serialConnectMain(self):
         serialConnect()
@@ -304,19 +307,21 @@ class MainWindow(Screen):
             self.indicatorColour = [0,1,0,1] ## green
         else: 
             self.indicatorColour = [1,0,0,1] ## defaults to red
+            noDeviceError()
 
 
     ## Saves the parameter data into the user_data.txt file to deploy in the future
     def deploy(self):
         #add if all values not zero
         #add if statement/try/except to catch possible errors
-
-        self.file = open("user_data.txt", "w")
-        self.data = {URL_value, LRL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value, AtrSens_value, VentSens_value, reactionTime_value, recoveryTime}
-        self.file.write(self.currentUsername + ";" + str(URL_value) + ";" + str(LRL_value) + ";" + str(AtrAmp_value) + ";" + str(VentAmp_value) + ";" + str(AtrPulseWidth_value) + ";" + str(VentPulseWidth_value) + ";" + str(VRP_value) + ";" + str(ARP_value) + ";" + str(AtrSens_value) + ";" + str(VentSens_value) + ";" + str(reactionTime_value) + ";" + str(recoveryTime_value) + "\n")
-        self.file.close()
-        serialSend()
-
+        if(hardwareConnected):
+            self.file = open("user_data.txt", "w")
+            self.data = {URL_value, LRL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value, AtrSens_value, VentSens_value, reactionTime_value, recoveryTime}
+            self.file.write(self.currentUsername + ";" + str(URL_value) + ";" + str(LRL_value) + ";" + str(AtrAmp_value) + ";" + str(VentAmp_value) + ";" + str(AtrPulseWidth_value) + ";" + str(VentPulseWidth_value) + ";" + str(VRP_value) + ";" + str(ARP_value) + ";" + str(AtrSens_value) + ";" + str(VentSens_value) + ";" + str(reactionTime_value) + ";" + str(recoveryTime_value) + "\n")
+            self.file.close()
+            serialSend()
+        else:
+            noDeviceError()
 
     # Saves the parameter data into the user_data.txt file to deploy in the future
     def load_data(self):
@@ -545,7 +550,7 @@ class textInputPopup(FloatLayout):
                   setVRP(num)
         
         elif index == 9:
-            if float(num) > 3 or float(num) < 0:
+            if float(num) > 3.3 or float(num) < 0:
                 show = paramErrorPopup()
                 popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
                 popupWindow_paramError.open()
@@ -644,34 +649,42 @@ def setAtrSens(num):
     global AtrSens
     global AtrSens_value
     AtrSens_value = float(num)
-    AtrSens = num + " V"          ##time between ~1 to 500 msec
+    AtrSens = num + " V"          ##voltage between 0 and 3.3V
     print("AtrSensitivity: " + AtrSens)
 
 def setVentSens(num):
     global VentSens
     global VentSens_value
     VentSens_value = float(num)
-    VentSens = num + " V"          ##time between ~1 to 500 msec
+    VentSens = num + " V"          ##voltage between 0 and 3.3V
     print("VentSensitivity: " + VentSens)
 
 def setreactionTime(num):
     global reactionTime
     global reactionTime_value
     reactionTime_value = num
-    reactionTime = num + " ms"          ##time between ~1 to 500 msec
+    reactionTime = num + " ms"          ##time between 10 to 50 sec
     print("reactionTime: " + reactionTime)
 
 def setrecoveryTime(num):
     global recoveryTime
     global recoveryTime_value
     recoveryTime_value = num
-    recoveryTime = num + " ms"          ##time between ~1 to 500 msec
+    recoveryTime = num + " ms"          ##time between 60 to 960 sec
     print("recoveryTime: " + recoveryTime)
 
+## add URL
 
+
+## Popup Float Layouts ----------------------------------------
 
 ## Generic Errors
+
 class errorPopup(FloatLayout):
+    def closePopup(self):
+        popupWindow.dismiss()
+
+class genericErrorPopup(FloatLayout):
     def closePopup(self):
         popupWindow.dismiss()
 
@@ -818,6 +831,18 @@ def userDeleted():
     show = successPopup()
     global popupWindow
     popupWindow = Popup(title="Account Deleted", content=show,size_hint=(None,None), size=(300,200))
+    popupWindow.open()
+
+def genericError():
+    show = genericErrorPopup()
+    global popupWindow
+    popupWindow = Popup(title="Error", content=show,size_hint=(None,None), size=(300,200))
+    popupWindow.open()
+
+def noDeviceError():
+    show = genericErrorPopup()
+    global popupWindow
+    popupWindow = Popup(title="No Device Connected", content=show,size_hint=(None,None), size=(300,200))
     popupWindow.open()
 
 

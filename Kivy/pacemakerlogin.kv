@@ -269,9 +269,13 @@
             size_hint: 0.5,0.05
             y: root.height-self.height-2
             pos_hint: {"center_x": 0.5}
-
-            Label:
-                text:""
+            
+            canvas:
+                Color:
+                    rgba: 0.1, 0.1, 0.1, 1
+                Rectangle:
+                    size: root.width*2,self.height+10
+                    pos: self.x-self.width,self.y
 
             Label:
                 id:currentUser
@@ -283,6 +287,11 @@
                 text: "\u2022"
                 color: root.indicatorColour
                 font_size: 35
+
+            Button:
+                text: "Connect"
+                #size_hint_x: 0.5
+                on_press: root.serialConnectMain()
                 
 
         ## Logout Button top right
@@ -290,7 +299,7 @@
             text: "Logout"
             size_hint: 0.1,0.05
             pos: root.width-self.width-2,root.height-self.height-2
-            on_press: root.serialConnectMain() #root.logout()
+            on_press: root.logout()
 
         ## Delete Account Button top left
         Button:
@@ -304,14 +313,21 @@
         # Pacing mode details
         GridLayout:
             cols: 2
-            size_hint: 1,0.1
-            pos_hint: {"center_x":0.5,"top":0.85}
+            size_hint: 1,0.2
+            pos_hint: {"center_x":0.5,"top":0.88}
             padding: 70,0
             spacing: 30
             Label:
+                canvas.before:
+                    Color:
+                        rgba: 0.1, 0.1, 0.1, 1
+                    Rectangle:
+                        size: self.width,self.height
+                        pos: self.x,self.y
                 id:pacingMode_text
                 text: ""
                 font_size: 18
+                
 
             ## Mode Selector Button
             Button:
@@ -319,44 +335,51 @@
                 pos_hint: {"center_x":0.5,"top":0.85}
                 on_press: root.open_modeSelector()
 
-        ## Heartbeat Graph Button
-        Button:
-            text: "Open Heartbeat Graph"
-            size_hint: 0.4,0.1
-            pos_hint: {"center_x":0.5, "top":0.75}
-            on_press: root.open_heartbeatGraph()
+            ## Programmable Parameters Button
+            Button:
+                text: "Change Programmable Parameters"
+                #size_hint: 0.4,1
+                pos_hint: {"center_x":0.5, "top":0.75}
+                on_press: root.open_programmableParameters()
 
-        ## Programmable Parameters Button
-        Button:
-            text: "Change Programmable Parameters"
-            size_hint: 0.4,0.1
-            pos_hint: {"center_x":0.5, "top":0.6}
-            on_press: root.open_programmableParameters()
+            ## Load Previous Button 
+            Button:
+                text: "Load Previous"
+                #size_hint:0.2,0.08
+                pos_hint: {"center_x":0.6, "top":0.13}
+                on_press: root.loadPrevious()
         
-        ## Deploy Button 
-        Button:
-            text: "Deploy Parameters"
-            size_hint:0.2,0.1
-            pos_hint: {"center_x":0.4, "top":0.13}
-            on_press: root.deploy()
-            #on_press: root.load_data()
-           #on_press: root.save_data()
-        
-        ## Load Previous Button 
-        Button:
-            text: "Load previous"
-            size_hint:0.2,0.1
-            pos_hint: {"center_x":0.6, "top":0.13}
-            on_press: root.loadPrevious()
+
+        ## GridLayout Bottom ----------
+        GridLayout:
+            size_hint:1,0.08
+            pos_hint: {"center_x":0.5, "top":0.13}
+            cols:2
+            spacing: 30
+            padding: 100,0
+
+            ## Deploy Button 
+            Button:
+                text: "Deploy Parameters"
+                #size_hint:0.2,0.08
+                #pos_hint: {"center_x":0.4, "top":0.13}
+                on_press: root.deploy()
+                #on_press: root.load_data()
+            #on_press: root.save_data()
+            
+            ## Heartbeat Graph Button
+            Button:
+                text: "Open Heartbeat Graph"
+                #size_hint: 0.4,0.08
+                #pos_hint: {"center_x":0.5, "top":0.13}
+                on_press: root.open_heartbeatGraph()
            
-        
         ## Save Button 
         #Button:
         #    text: "Save Parameters"
         #    size_hint:0.2,0.1
         #    pos_hint: {"center_x":1, "top":0.13}
         #    on_press: root.save()
-            
 
 
         ## Display all programmable parameters -------------------------------
@@ -364,7 +387,7 @@
         GridLayout:
             cols: 2
             size_hint: 0.85,0.3
-            pos_hint: {"center_x":0.5,"top":0.45}
+            pos_hint: {"center_x":0.5,"top":0.6}
             spacing: 20,0
         
             Label:
@@ -716,7 +739,7 @@
 
             GridLayout:
                 rows:1
-                size_hint_y: 0.2
+                size_hint_y: 0.15
 
                 Button:
                     text:"Done"
@@ -758,7 +781,20 @@
 <errorPopup>:
     size:400,300
     Label:
-        text: "Invalid Entry"  ##"Invalid username or password"
+        text: "Invalid username or password"
+        size_hint:0.6,0.2
+        pos_hint: {"x":0.2, "center_y":0.7}
+
+    Button:
+        text:"Ok"
+        size_hint:0.6,0.3
+        pos_hint: {"x":0.2, "top":0.4}
+        on_press: root.closePopup()
+
+<genericErrorPopup>:
+    size:400,300
+    Label:
+        text: "Attempt Failed"
         size_hint:0.6,0.2
         pos_hint: {"x":0.2, "center_y":0.7}
 
@@ -805,3 +841,4 @@
         halign: 'center'
         size_hint:0.6,0.2
         pos_hint: {"center_x":0.5, "center_y":0.5}
+
