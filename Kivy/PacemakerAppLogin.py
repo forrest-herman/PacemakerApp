@@ -160,7 +160,7 @@ class RegisterWindow(Screen):
 
 
 ## MainWindow ----------------------------------------
- ### PULL THESE CHANGES>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 class MainWindow(Screen):
     currentUser = ObjectProperty(None)
     display_active_pacingMode = ObjectProperty(None)
@@ -218,7 +218,7 @@ class MainWindow(Screen):
         self.display_VentSens_parameter.text = "VentSensitivity: " + str(VentSens)
         self.display_reactionTime_parameter.text = "Reaction Time: " + str(reactionTime)
         self.display_recoveryTime_parameter.text = "Recovery Time: " + str(recoveryTime)
- ### PULL THESE CHANGES>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ 
         
         #self.display_heartbeat_bpm.text = "BPM: " + str(heartBPM) ####  for later 
         
@@ -260,7 +260,7 @@ class MainWindow(Screen):
         popupWindow = Popup(title="Programmable Parameters", content=show,size_hint=(None,None), size=(500,500))
         popupWindow.open()
     
-    ### PULL THESE CHANGES>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  
     # Saves the parameter data into the user_data.txt file to deploy in the future
     def deploy(self):
         self.file = open("user_data.txt", "w")
@@ -286,6 +286,47 @@ class MainWindow(Screen):
                 f.write(user + ";" + self.data[user][0] + ";" + self.data[user][1] + ";" + self.data[user][2] + ";" + self.data[user][3] + ";" + self.data[user][4] + ";" + self.data[user][5] + ";" + self.data[user][6] + ";" + self.data[user][7] + ";" + self.data[user][8] + ";" + self.data[user][9] + ";" + self.data[user][10] + self.data[user][11] + "\n")
 
    ### PULL THESE CHANGES>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+    def loadPrevious(self):
+
+        self.file = open("user_data.txt", "r")
+        self.data = {}
+
+        for line in self.file:
+            self.currentUsername, LRL_value, URL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value, AtrSens_value, VentSens_value, reactionTime_value, recoveryTime_value = line.strip().split(";")
+            self.data[self.currentUsername] = (LRL_value, URL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value,AtrSens_value, VentSens_value, reactionTime_value, recoveryTime_value)
+        
+        setLRL(LRL_value)
+        setURL(URL_value)
+        setAtrAmp(AtrAmp_value)
+        setVentAmp(VentAmp_value)
+        setAtrPulseWidth(AtrPulseWidth_value)
+        setVentPulseWidth(VentPulseWidth_value)
+        setVRP(VRP_value)
+        setARP(ARP_value)
+        setAtrSens(AtrSens_value)
+        setVentSens(VentSens_value)
+        setreactionTime(reactionTime_value)
+        setrecoveryTime(recoveryTime_value)
+
+        self.currentUser.text = "Active User: " + userDatabase.get_user(self.currentUsername)[0]
+        self.display_active_pacingMode.text = "Pacing Mode: " + pacingMode
+        self.display_LRL_parameter.text = "Lower Rate Limit: " + LRL
+        self.display_URL_parameter.text = "Maximum Sensor Rate: " + URL
+        self.display_AtrAmp_parameter.text = "Atrium Aplitude: " + AtrAmp
+        self.display_VentAmp_parameter.text = "Ventricle Amplitude: " + VentAmp
+        self.display_AtrPulseWidth_parameter.text = "AtrPulseWidth: " + AtrPulseWidth
+        self.display_VentPulseWidth_parameter.text = "VentPulseWidth: " + VentPulseWidth
+        self.display_ARP_parameter.text = "Atrium Refractory Period: " + ARP
+        self.display_VRP_parameter.text = "Ventricular Refractory Period: " + VRP
+        self.display_AtrSens_parameter.text = "AtrSensitivity: " + str(AtrSens)
+        self.display_VentSens_parameter.text = "VentSensitivity: " + str(VentSens)
+        self.display_reactionTime_parameter.text = "Reaction Time: " + str(reactionTime)
+        self.display_recoveryTime_parameter.text = "Recovery Time: " + str(recoveryTime)
+
+        self.file.close()
+    
+ ### PULL THESE CHANGES>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
         
 
     
@@ -321,7 +362,7 @@ class programmableParametersPopup(FloatLayout):
         manageWin.current = "welcomeWin"
         manageWin.current = "mainWin"
 
-### PULL THESE CHANGES>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 # Popup for text input
 class textInputPopup(FloatLayout):
 
@@ -520,7 +561,7 @@ def setrecoveryTime(num):
     recoveryTime = num + " ms"          ##time between ~1 to 500 msec
     print("recoveryTime: " + recoveryTime)
 
-### PULL THESE CHANGES>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 
 ## Generic Errors
 class errorPopup(FloatLayout):
