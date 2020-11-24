@@ -298,7 +298,7 @@ class MainWindow(Screen):
         if(hardwareConnected):
             show = heartbeatGraphPopup()
             global popupWindow
-            popupWindow = Popup(title="Current Heartbeat", content=show,size_hint=(None,None), size=(1000,1000))
+            popupWindow = Popup(title="Current Heartbeat", content=show,size_hint=(None,None), size=(750,500))
             popupWindow.open()
         else: 
             noDeviceError()
@@ -494,110 +494,116 @@ class textInputPopup(FloatLayout):
     def selectProgParam(self):
         num = self.inputField.text
         global popupWindow_paramError
+        try:
+            int(num)
+        except:
+            show = paramErrorPopup()
+            popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+            popupWindow_paramError.open()
+        else:
+            ## LRL -------
+            if index == 1:
+                if int(num) > 150 or int(num) < 40:
+                    show = paramErrorPopup()
+                    popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                    popupWindow_paramError.open()
+                else:
+                    setLRL(num) ##typecast float to int
 
-        ## LRL -------
-        if index == 1:
-            if int(num) > 150 or int(num) < 40:
-                show = paramErrorPopup()
-                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                popupWindow_paramError.open()
-            else:
-                setLRL(num) ##typecast float to int
+            ## URL -------
+            elif index == 2:
+                if int(num) > 150 or int(num) < 60:
+                    show = paramErrorPopup()
+                    popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                    popupWindow_paramError.open()
+                else:
+                    setMSR(num) ##typecast float to int
 
-        ## URL -------
-        elif index == 2:
-            if int(num) > 180 or int(num) < 60:
-                show = paramErrorPopup()
-                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                popupWindow_paramError.open()
-            else:
-                setMSR(num) ##typecast float to int
+            ## AtrAmp -------
+            elif index == 3:
+                if int(num) > 5 or int(num) < 0:
+                    show = paramErrorPopup()
+                    popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                    popupWindow_paramError.open()
+                else:
+                    setAtrAmp(num)
 
-        ## AtrAmp -------
-        elif index == 3:
-            if int(num) > 5 or int(num) < 0:
-                show = paramErrorPopup()
-                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                popupWindow_paramError.open()
-            else:
-                setAtrAmp(num)
+            ## AtrPulseWidth -------
+            elif index == 4:
+                if float(num) > 100 or float(num) < 0:
+                    show = paramErrorPopup()
+                    popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                    popupWindow_paramError.open()
+                else:
+                    setAtrPulseWidth(num)
 
-        ## AtrPulseWidth -------
-        elif index == 4:
-            if float(num) > 100 or float(num) < 0:
-                show = paramErrorPopup()
-                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                popupWindow_paramError.open()
-            else:
-                setAtrPulseWidth(num)
+            ## ARP -------
+            elif index == 5:
+                if float(num) > 600 or float(num) < 0:
+                    show = paramErrorPopup()
+                    popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                    popupWindow_paramError.open()
+                else:
+                    setARP(num)
 
-        ## ARP -------
-        elif index == 5:
-            if float(num) > 600 or float(num) < 0:
-                show = paramErrorPopup()
-                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                popupWindow_paramError.open()
-            else:
-                setARP(num)
+            ## VentAmp -------
+            elif index == 6:
+                if int(num) > 5 or int(num) < 0:
+                    show = paramErrorPopup()
+                    popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                    popupWindow_paramError.open()
+                else:
+                    setVentAmp(num)
 
-        ## VentAmp -------
-        elif index == 6:
-            if int(num) > 5 or int(num) < 0:
-                show = paramErrorPopup()
-                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                popupWindow_paramError.open()
-            else:
-                 setVentAmp(num)
+            ## VentPulseWidth -------
+            elif index == 7:
+                if float(num) > 100 or float(num) < 0:
+                    show = paramErrorPopup()
+                    popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                    popupWindow_paramError.open()
+                else:
+                    setVentPulseWidth(num)
 
-        ## VentPulseWidth -------
-        elif index == 7:
-            if float(num) > 100 or float(num) < 0:
-                show = paramErrorPopup()
-                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                popupWindow_paramError.open()
-            else:
-                  setVentPulseWidth(num)
-
-        ## VRP -------
-        elif index == 8:
-            if float(num) > 600 or float(num) < 0:
-                show = paramErrorPopup()
-                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                popupWindow_paramError.open()
-            else:
-                  setVRP(num)
-        
-        elif index == 9:
-            if float(num) > 3.3 or float(num) < 0:
-                show = paramErrorPopup()
-                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                popupWindow_paramError.open()
-            else:
-                  setAtrSens(num)
-        
-        elif index == 10:
-            if float(num) > 3.3 or float(num) < 0:
-                show = paramErrorPopup()
-                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                popupWindow_paramError.open()
-            else:
-                  setVentSens(num)
-        
-        elif index == 11:
-            if (float(num) > 50 or float(num) < 10):
-                show = paramErrorPopup()
-                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                popupWindow_paramError.open()
-            else:
-                  setreactionTime(num)
-        
-        elif index == 12:
-            if float(num) > 960 or float(num) < 60:
-                show = paramErrorPopup()
-                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                popupWindow_paramError.open()
-            else:
-                  setrecoveryTime(num)
+            ## VRP -------
+            elif index == 8:
+                if float(num) > 600 or float(num) < 0:
+                    show = paramErrorPopup()
+                    popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                    popupWindow_paramError.open()
+                else:
+                    setVRP(num)
+            
+            elif index == 9:
+                if float(num) > 3 or float(num) < 0:
+                    show = paramErrorPopup()
+                    popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                    popupWindow_paramError.open()
+                else:
+                    setAtrSens(num)
+            
+            elif index == 10:
+                if float(num) > 3 or float(num) < 0:
+                    show = paramErrorPopup()
+                    popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                    popupWindow_paramError.open()
+                else:
+                    setVentSens(num)
+            
+            elif index == 11:
+                if (float(num) > 50 or float(num) < 10):
+                    show = paramErrorPopup()
+                    popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                    popupWindow_paramError.open()
+                else:
+                    setreactionTime(num)
+            
+            elif index == 12:
+                if float(num) > 960 or float(num) < 60:
+                    show = paramErrorPopup()
+                    popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                    popupWindow_paramError.open()
+                else:
+                    setrecoveryTime(num)
 
     def closePopup(self):
         popupWindow_editParameter.dismiss()
