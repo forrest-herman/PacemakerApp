@@ -22,7 +22,7 @@ from kivy.clock import Clock
 import time
 import serial
 import struct
-from kivy.garden.graph import MeshLinePlot, Graph
+from kivy.garden.graph import MeshLinePlot
 from numpy import random
 
 
@@ -47,30 +47,33 @@ def serialConnect():
         if (notConnected == False): 
             hardwareConnected = True
             print(port[i] + " connected")
+            pacemaker_serial.flush()
             break
 
 
 #pacemaker_serial = serial.Serial(port="COM7", baudrate=115200,timeout=1)
 
 def serialSend():
-    ## order of transmission: paceLocation, sensingTrue, LRL,   URL,    AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, ARP,    VRP     
-    ## types of transmission: u char        u char       uchar  uchar   float   float    float          float           float   float
     AtrAmp_DutyCycle = AtrAmp_value/5.0 *100
     VentAmp_DutyCycle = VentAmp_value/5.0 *100
-    serialSend = struct.pack('<BBBBBBffffff',0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(URL_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value) ## byte list of length 30 bytes
+    AtrSens_DutyCycle = AtrSens_value/3.3 *100
+    VentSens_DutyCycle = VentSens_value/3.3 *100
+    ## order of transmission: paceLocation, sensingTrue, LRL,   URL,    AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, ARP,    VRP     AtrSens,    VentSens
+    ## types of transmission: u char        u char       uchar  uchar   float   float    float          float           float   float   float       float
+    serialSend = struct.pack('<BBBBBBffffffff',0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(URL_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value, AtrSens_DutyCycle, VentSens_DutyCycle) ## byte list of length 38 bytes
     pacemaker_serial.write(serialSend)
     print(len(serialSend))
-    print(serialSend)
-    print(serialSend.hex())
-    print([0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(URL_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value])
-    
-def serialReceive():
-    serialRequest = struct.pack('<BBBBBBffffff',0x16,0x22, 0, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0) ## byte list of length 30 bytes
+    #print(serialSend)
+    #print(serialSend.hex())
+    print([0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(URL_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value, AtrSens_DutyCycle,VentSens_DutyCycle])
+
+def serialRequest():
+    serialRequest = struct.pack('<BBBBBBffffffff',0x16,0x22, 0, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0) ## byte list of length 38 bytes
     pacemaker_serial.write(serialRequest)
-    #print(struct.unpack('dd',pacemaker_serial.read(16)))
-    #print(pacemaker_serial.read(16).hex())
-    #print(struct.unpack('<dd',pacemaker_serial.read(16)))
-    return struct.unpack('<dd',pacemaker_serial.read(16))
+
+def serialReceive():
+    inputRead = struct.unpack('<dddddd',pacemaker_serial.read(48)) ## 3 floats ///// TEMPORARY 5 floats : atrium_egram, ventricle_egram, accel_x, accel_y, accel_z, serial number || 1 uint (serial number)
+    return inputRead
 
 
 ## Declare all the Screens ----------------------------------------------------------------------
@@ -191,9 +194,10 @@ class RegisterWindow(Screen):
 
 
 ## MainWindow ----------------------------------------
- ### PULL THESE CHANGES>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 class MainWindow(Screen):
     currentUser = ObjectProperty(None)
+    device = ObjectProperty(None)
     display_active_pacingMode = ObjectProperty(None)
 
     display_LRL_parameter = ObjectProperty(None)
@@ -226,8 +230,6 @@ class MainWindow(Screen):
     #floats
     AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value, AtrSens_value, VentSens_value = 8*[0.0]
 
-    #global heartBPM #### in progress
-    #heartBPM = 100 ## temporary
 
     global hardwareConnected
     hardwareConnected = False
@@ -252,12 +254,13 @@ class MainWindow(Screen):
         #self.display_URL_parameter.text = "Upper Rate Limit: " + URL
         
 
-
         ## set hardware connected indicator
-        #if(hardwareConnected):
-            #self.indicatorColour = [0,1,0,1] ## green
-        #else: 
-            #self.indicatorColour = [1,0,0,1] ## defaults to red
+        if(hardwareConnected):
+            self.indicatorColour = [0,1,0,1] ## green
+        else: 
+            self.indicatorColour = [1,0,0,1] ## defaults to red
+            self.device.text = "No Device"
+
 
     def logout(self):
         #edit transition
@@ -266,6 +269,7 @@ class MainWindow(Screen):
         manageWin.current = "welcomeWin"
         ## popup "Logout Successful"
         signOut_Complete()
+
     
     ## Option to delete account
     def deleteAccount(self):
@@ -291,19 +295,47 @@ class MainWindow(Screen):
 
     ## Heartbeat Graph Popup window is displayed
     def open_heartbeatGraph(self):
-        show = heartbeatGraphPopup()
-        global popupWindow
-        popupWindow = Popup(title="Current Heartbeat", content=show,size_hint=(None,None), size=(750,500))
-        popupWindow.open()
-            
+        if(hardwareConnected):
+            show = heartbeatGraphPopup()
+            global popupWindow
+            popupWindow = Popup(title="Current Heartbeat", content=show,size_hint=(None,None), size=(1000,1000))
+            popupWindow.open()
+        else: 
+            noDeviceError()
+
+    def serialConnectMain(self):
+        serialConnect()
+        if(hardwareConnected):
+            self.indicatorColour = [0,1,0,1] ## green
+            try:
+                serialRequest()
+                time.sleep(0.01)
+                serialNum = serialReceive()
+                print(serialNum)
+                self.device.text = "Device " + str(int(serialNum[2]))
+            except:
+                noDeviceError()
+                self.indicatorColour = [1,0,0,1] ## defaults to red
+                self.device.text = "No Device"
+        else: 
+            self.indicatorColour = [1,0,0,1] ## defaults to red
+            self.device.text = "No Device"
+            noDeviceError()
+
+
+
     ## Saves the parameter data into the user_data.txt file to deploy in the future
     def deploy(self):
-        #if all values not zero
-        self.file = open("user_data.txt", "w")
-        self.data = {URL_value, LRL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value, AtrSens_value, VentSens_value, reactionTime_value, recoveryTime}
-        self.file.write(self.currentUsername + ";" + str(URL_value) + ";" + str(LRL_value) + ";" + str(AtrAmp_value) + ";" + str(VentAmp_value) + ";" + str(AtrPulseWidth_value) + ";" + str(VentPulseWidth_value) + ";" + str(VRP_value) + ";" + str(ARP_value) + ";" + str(AtrSens_value) + ";" + str(VentSens_value) + ";" + str(reactionTime_value) + ";" + str(recoveryTime_value) + "\n")
-        self.file.close()
-
+        #add if all values not zero
+        #add if statement/try/except to catch possible errors
+        if(hardwareConnected):
+            self.file = open("user_data.txt", "w")
+            self.data = {URL_value, LRL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value, AtrSens_value, VentSens_value, reactionTime_value, recoveryTime}
+            self.file.write(self.currentUsername + ";" + str(URL_value) + ";" + str(LRL_value) + ";" + str(AtrAmp_value) + ";" + str(VentAmp_value) + ";" + str(AtrPulseWidth_value) + ";" + str(VentPulseWidth_value) + ";" + str(VRP_value) + ";" + str(ARP_value) + ";" + str(AtrSens_value) + ";" + str(VentSens_value) + ";" + str(reactionTime_value) + ";" + str(recoveryTime_value) + "\n")
+            self.file.close()
+            serialSend()
+        else:
+            noDeviceError()
 
     # Saves the parameter data into the user_data.txt file to deploy in the future
     def load_data(self):
@@ -316,8 +348,6 @@ class MainWindow(Screen):
             self.data[self.currentUsername] = (LRL_value, URL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value,AtrSens_value, VentSens_value, reactionTime_value, recoveryTime_value)
         
         self.file.close()
-        serialSend()
-        #else, throw error!
     
 
     def save_data(self):
@@ -325,14 +355,47 @@ class MainWindow(Screen):
         with open("user_data.txt", "w") as f:
             for user in self.data:
                 f.write(user + ";" + self.data[user][0] + ";" + self.data[user][1] + ";" + self.data[user][2] + ";" + self.data[user][3] + ";" + self.data[user][4] + ";" + self.data[user][5] + ";" + self.data[user][6] + ";" + self.data[user][7] + ";" + self.data[user][8] + ";" + self.data[user][9] + ";" + self.data[user][10] + self.data[user][11] + "\n")
+   
 
+    def loadPrevious(self):
 
-    def serialConnectMain(self):
-        serialConnect()
-        if(hardwareConnected):
-            self.indicatorColour = [0,1,0,1] ## green
-        else: 
-            self.indicatorColour = [1,0,0,1] ## defaults to red
+        self.file = open("user_data.txt", "r")
+        self.data = {}
+
+        for line in self.file:
+            self.currentUsername, LRL_value, URL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value, AtrSens_value, VentSens_value, reactionTime_value, recoveryTime_value = line.strip().split(";")
+            self.data[self.currentUsername] = (LRL_value, URL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value,AtrSens_value, VentSens_value, reactionTime_value, recoveryTime_value)
+        
+        setLRL(LRL_value)
+        setURL(URL_value)
+        setAtrAmp(AtrAmp_value)
+        setVentAmp(VentAmp_value)
+        setAtrPulseWidth(AtrPulseWidth_value)
+        setVentPulseWidth(VentPulseWidth_value)
+        setVRP(VRP_value)
+        setARP(ARP_value)
+        setAtrSens(AtrSens_value)
+        setVentSens(VentSens_value)
+        setreactionTime(reactionTime_value)
+        setrecoveryTime(recoveryTime_value)
+
+        self.currentUser.text = "Active User: " + userDatabase.get_user(self.currentUsername)[0]
+        self.display_active_pacingMode.text = "Pacing Mode: " + pacingMode
+        self.display_LRL_parameter.text = "Lower Rate Limit: " + LRL
+        self.display_URL_parameter.text = "Maximum Sensor Rate: " + URL
+        self.display_AtrAmp_parameter.text = "Atrium Aplitude: " + AtrAmp
+        self.display_VentAmp_parameter.text = "Ventricle Amplitude: " + VentAmp
+        self.display_AtrPulseWidth_parameter.text = "AtrPulseWidth: " + AtrPulseWidth
+        self.display_VentPulseWidth_parameter.text = "VentPulseWidth: " + VentPulseWidth
+        self.display_ARP_parameter.text = "Atrium Refractory Period: " + ARP
+        self.display_VRP_parameter.text = "Ventricular Refractory Period: " + VRP
+        self.display_AtrSens_parameter.text = "AtrSensitivity: " + AtrSens
+        self.display_VentSens_parameter.text = "VentSensitivity: " + VentSens
+        self.display_reactionTime_parameter.text = "Reaction Time: " + reactionTime
+        self.display_recoveryTime_parameter.text = "Recovery Time: " + recoveryTime
+
+        self.file.close()
+        
 
     
 
@@ -352,42 +415,53 @@ class modeSelectorPopup(FloatLayout):
 class heartbeatGraphPopup(FloatLayout):
     
     def __init__(self,):
-        super(heartbeatGraphPopup, self).__init__()        
+        super(heartbeatGraphPopup, self).__init__()
         self.plot1 = MeshLinePlot(color=[1, 0, 0, 1])
         self.plot2 = MeshLinePlot(color=[1, 0, 0, 1])
     
     def startHeartbeat(self):
-        global ATR_graphArray ## add VENT_graphArray
-        ATR_graphArray = 100*[0.0]
+        serialRequest()
+
+        global ATR_graphArray, VENT_graphArray
+        ATR_graphArray = 150*[0.0]
+        VENT_graphArray = 150*[0.0]
+
         self.ids.graphAtr.add_plot(self.plot1)
-        Clock.schedule_interval(self.get_value_atr, 2) ### error if less than 2
+        Clock.schedule_interval(self.get_value_atr, 0.001)
 
         self.ids.graphVent.add_plot(self.plot2)
         Clock.schedule_interval(self.get_value_vent, 0.001)
+
 
     def stopHeartbeat(self):
         Clock.unschedule(self.get_value_atr)
         Clock.unschedule(self.get_value_vent)
 
     def get_value_atr(self, dt):
-        #serialReceive()
-        global ATR_graphArray
-        ATR_graphArray.pop(0)
+        #time.sleep(0.5) #how long does it take to accumulate data
+        global ATR_graphArray,tupleInput
+        
         tupleInput = serialReceive()
-        atrGraphValue = tupleInput[0]*3.3
-        ventGraphValue = tupleInput[1]*3.3
-        print(atrGraphValue)
-        print(ventGraphValue)
-        ATR_graphArray.append(atrGraphValue)
+        serialRequest()
+        print(tupleInput)
+        ATR_graphArray.pop(0)
+        x = tupleInput[0]
+        ATR_graphArray.append((x-0.5)*-2*3.3) ## 0 = -3.3 V || 0.5 = 0 V || 1 = 3.3 V
         self.plot1.points = [(i, j) for i, j in enumerate(ATR_graphArray)]
+
         
     def get_value_vent(self, dt):
-        # serial receive 
-        testing = random.randint(100, size=(200))
-        self.plot2.points = [(i, j) for i, j in enumerate(testing)]
+        global VENT_graphArray,tupleInput
+        
+        VENT_graphArray.pop(0)
+        x = tupleInput[1]
+        VENT_graphArray.append((x-0.5)*-2*3.3)
+        self.plot2.points = [(i, j) for i, j in enumerate(VENT_graphArray)]
+
 
     def closePopup(self):
         popupWindow.dismiss()
+
 
 # Popup for programmableParameterPopup
 class programmableParametersPopup(FloatLayout):
@@ -410,7 +484,7 @@ class programmableParametersPopup(FloatLayout):
         manageWin.current = "welcomeWin"
         manageWin.current = "mainWin"
 
-### PULL THESE CHANGES>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 # Popup for text input
 class textInputPopup(FloatLayout):
 
@@ -420,125 +494,215 @@ class textInputPopup(FloatLayout):
     def selectProgParam(self):
         num = self.inputField.text
         global popupWindow_paramError
-        try:
-            int(num)
-        except:
-            show = paramErrorPopup()
-            popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-            popupWindow_paramError.open()
-        else:
-            ## LRL -------
-            if index == 1:
-                if int(num) > 150 or int(num) < 40:
-                    show = paramErrorPopup()
-                    popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                    popupWindow_paramError.open()
-                else:
-                    setLRL(num) ##typecast float to int
 
-            ## URL -------
-            elif index == 2:
-                if int(num) > 150 or int(num) < 60:
-                    show = paramErrorPopup()
-                    popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                    popupWindow_paramError.open()
-                else:
-                    setMSR(num) ##typecast float to int
+        ## LRL -------
+        if index == 1:
+            if int(num) > 150 or int(num) < 40:
+                show = paramErrorPopup()
+                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow_paramError.open()
+            else:
+                setLRL(num) ##typecast float to int
 
-            ## AtrAmp -------
-            elif index == 3:
-                if int(num) > 5 or int(num) < 0:
-                    show = paramErrorPopup()
-                    popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                    popupWindow_paramError.open()
-                else:
-                    setAtrAmp(num)
+        ## URL -------
+        elif index == 2:
+            if int(num) > 180 or int(num) < 60:
+                show = paramErrorPopup()
+                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow_paramError.open()
+            else:
+                setMSR(num) ##typecast float to int
 
-            ## AtrPulseWidth -------
-            elif index == 4:
-                if float(num) > 100 or float(num) < 0:
-                    show = paramErrorPopup()
-                    popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                    popupWindow_paramError.open()
-                else:
-                    setAtrPulseWidth(num)
+        ## AtrAmp -------
+        elif index == 3:
+            if int(num) > 5 or int(num) < 0:
+                show = paramErrorPopup()
+                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow_paramError.open()
+            else:
+                setAtrAmp(num)
 
-            ## ARP -------
-            elif index == 5:
-                if float(num) > 600 or float(num) < 0:
-                    show = paramErrorPopup()
-                    popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                    popupWindow_paramError.open()
-                else:
-                    setARP(num)
+        ## AtrPulseWidth -------
+        elif index == 4:
+            if float(num) > 100 or float(num) < 0:
+                show = paramErrorPopup()
+                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow_paramError.open()
+            else:
+                setAtrPulseWidth(num)
 
-            ## VentAmp -------
-            elif index == 6:
-                if int(num) > 5 or int(num) < 0:
-                    show = paramErrorPopup()
-                    popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                    popupWindow_paramError.open()
-                else:
-                    setVentAmp(num)
+        ## ARP -------
+        elif index == 5:
+            if float(num) > 600 or float(num) < 0:
+                show = paramErrorPopup()
+                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow_paramError.open()
+            else:
+                setARP(num)
 
-            ## VentPulseWidth -------
-            elif index == 7:
-                if float(num) > 100 or float(num) < 0:
-                    show = paramErrorPopup()
-                    popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                    popupWindow_paramError.open()
-                else:
-                    setVentPulseWidth(num)
+        ## VentAmp -------
+        elif index == 6:
+            if int(num) > 5 or int(num) < 0:
+                show = paramErrorPopup()
+                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow_paramError.open()
+            else:
+                 setVentAmp(num)
 
-            ## VRP -------
-            elif index == 8:
-                if float(num) > 600 or float(num) < 0:
-                    show = paramErrorPopup()
-                    popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                    popupWindow_paramError.open()
-                else:
-                    setVRP(num)
-            
-            elif index == 9:
-                if float(num) > 3 or float(num) < 0:
-                    show = paramErrorPopup()
-                    popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                    popupWindow_paramError.open()
-                else:
-                    setAtrSens(num)
-            
-            elif index == 10:
-                if float(num) > 3 or float(num) < 0:
-                    show = paramErrorPopup()
-                    popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                    popupWindow_paramError.open()
-                else:
-                    setVentSens(num)
-            
-            elif index == 11:
-                if (float(num) > 50 or float(num) < 10):
-                    show = paramErrorPopup()
-                    popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                    popupWindow_paramError.open()
-                else:
-                    setreactionTime(num)
-            
-            elif index == 12:
-                if float(num) > 960 or float(num) < 60:
-                    show = paramErrorPopup()
-                    popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
-                    popupWindow_paramError.open()
-                else:
-                    setrecoveryTime(num)
+        ## VentPulseWidth -------
+        elif index == 7:
+            if float(num) > 100 or float(num) < 0:
+                show = paramErrorPopup()
+                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow_paramError.open()
+            else:
+                  setVentPulseWidth(num)
+
+        ## VRP -------
+        elif index == 8:
+            if float(num) > 600 or float(num) < 0:
+                show = paramErrorPopup()
+                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow_paramError.open()
+            else:
+                  setVRP(num)
+        
+        elif index == 9:
+            if float(num) > 3.3 or float(num) < 0:
+                show = paramErrorPopup()
+                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow_paramError.open()
+            else:
+                  setAtrSens(num)
+        
+        elif index == 10:
+            if float(num) > 3.3 or float(num) < 0:
+                show = paramErrorPopup()
+                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow_paramError.open()
+            else:
+                  setVentSens(num)
+        
+        elif index == 11:
+            if (float(num) > 50 or float(num) < 10):
+                show = paramErrorPopup()
+                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow_paramError.open()
+            else:
+                  setreactionTime(num)
+        
+        elif index == 12:
+            if float(num) > 960 or float(num) < 60:
+                show = paramErrorPopup()
+                popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
+                popupWindow_paramError.open()
+            else:
+                  setrecoveryTime(num)
 
     def closePopup(self):
         popupWindow_editParameter.dismiss()
         manageWin.transition = NoTransition()
         manageWin.current = "welcomeWin"
         manageWin.current = "mainWin"
+    
+    
+## Set programmable parameters
+def setLRL(num):
+    global LRL  ##text
+    global LRL_value ## uint
+    LRL_value = num
+    LRL = num + " BPM"   ##bpm rate between roughly 30 and 100
+    print("LRL: " + LRL)
+
+def setURL(num):
+    global URL  ##text
+    global URL_value ## uint
+    URL_value = num
+    URL = num + " BPM"   ##bpm rate between roughly 80 and 150
+    print("URL: " + URL)
+
+def setAtrAmp(num):
+    global AtrAmp  ##text
+    global AtrAmp_value ## single
+    AtrAmp_value = float(num)
+    AtrAmp = num + " V"   ##voltage between 0 and 5V
+    print("AtrAmp: " + AtrAmp)
+    
+def setAtrPulseWidth(num):
+    global AtrPulseWidth  ##text
+    global AtrPulseWidth_value ## single
+    AtrPulseWidth_value = float(num)
+    AtrPulseWidth = num + " ms"      ##time between ~1 to 30 msec
+    print("AtrPulseWidth: " + AtrPulseWidth)
+    
+def setVentAmp(num):
+    global VentAmp  ##text
+    global VentAmp_value ## single
+    VentAmp_value = float(num)
+    VentAmp = num + " V"   ##voltage between 0 and 5V
+    print("VentAmp: " + VentAmp)
+    
+def setVentPulseWidth(num):
+    global VentPulseWidth  ##text
+    global VentPulseWidth_value ## single
+    VentPulseWidth_value = float(num)
+    VentPulseWidth = num + " ms"    ##time between ~1 to 30 msec
+    print("VentPulseWidth: " + VentPulseWidth)
+    
+def setVRP(num):
+    global VRP  ##text
+    global VRP_value ## single
+    VRP_value = float(num)
+    VRP = num + " ms"           ##time between ~1 to 500 msec
+    print("VRP: " + VRP)
+    
+def setARP(num):
+    global ARP  ##text
+    global ARP_value ## single
+    ARP_value = float(num)
+    ARP = num + " ms"          ##time between ~1 to 500 msec
+    print("ARP: " + ARP)
+
+def setAtrSens(num):
+    global AtrSens
+    global AtrSens_value
+    AtrSens_value = float(num)
+    AtrSens = num + " V"          ##voltage between 0 and 3.3V
+    print("AtrSensitivity: " + AtrSens)
+
+def setVentSens(num):
+    global VentSens
+    global VentSens_value
+    VentSens_value = float(num)
+    VentSens = num + " V"          ##voltage between 0 and 3.3V
+    print("VentSensitivity: " + VentSens)
+
+def setreactionTime(num):
+    global reactionTime
+    global reactionTime_value
+    reactionTime_value = num
+    reactionTime = num + " ms"          ##time between 10 to 50 sec
+    print("reactionTime: " + reactionTime)
+
+def setrecoveryTime(num):
+    global recoveryTime
+    global recoveryTime_value
+    recoveryTime_value = num
+    recoveryTime = num + " ms"          ##time between 60 to 960 sec
+    print("recoveryTime: " + recoveryTime)
+
+## add URL
+
+
+## Popup Float Layouts ----------------------------------------
 
 ## Generic Errors
+
 class errorPopup(FloatLayout):
+    def closePopup(self):
+        popupWindow.dismiss()
+
+class genericErrorPopup(FloatLayout):
     def closePopup(self):
         popupWindow.dismiss()
 
@@ -685,6 +849,18 @@ def userDeleted():
     show = successPopup()
     global popupWindow
     popupWindow = Popup(title="Account Deleted", content=show,size_hint=(None,None), size=(300,200))
+    popupWindow.open()
+
+def genericError():
+    show = genericErrorPopup()
+    global popupWindow
+    popupWindow = Popup(title="Error", content=show,size_hint=(None,None), size=(300,200))
+    popupWindow.open()
+
+def noDeviceError():
+    show = genericErrorPopup()
+    global popupWindow
+    popupWindow = Popup(title="No Device Connected", content=show,size_hint=(None,None), size=(300,200))
     popupWindow.open()
 
 

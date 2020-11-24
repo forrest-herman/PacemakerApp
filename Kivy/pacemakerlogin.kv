@@ -244,6 +244,7 @@
     name: "mainWin"
     
     currentUser: currentUser
+    device:device
     display_active_pacingMode:pacingMode_text
 
     display_LRL_parameter:LRL_parameterText
@@ -265,8 +266,8 @@
     FloatLayout:
         ## Current user displayed
         GridLayout:
-            cols: 3
-            size_hint: 0.5,0.05
+            cols: 5
+            size_hint: 0.7,0.05
             y: root.height-self.height-2
             pos_hint: {"center_x": 0.5}
             
@@ -276,6 +277,11 @@
                 Rectangle:
                     size: root.width*2,self.height+10
                     pos: self.x-self.width,self.y
+            
+            Label:
+                text: ""
+                font_size: 18
+                width: 10
 
             Label:
                 id:currentUser
@@ -287,11 +293,18 @@
                 text: "\u2022"
                 color: root.indicatorColour
                 font_size: 35
-
+            
+            Label:
+                id:device
+                text: ""
+                font_size: 18
+                width: 10
+            
             Button:
                 text: "Connect"
-                #size_hint_x: 0.5
+                size_hint_x: 0.6
                 on_press: root.serialConnectMain()
+
                 
 
         ## Logout Button top right
@@ -604,8 +617,8 @@
                     ylabel: "Voltage"
                     xmin: 0
                     xmax: 150
-                    ymin:-1
-                    ymax:1
+                    ymin:-3.3
+                    ymax:3.3
                     x_ticks_major:25
                     y_ticks_major:0.1
                     #graph = Graph(xlabel='X', ylabel='Y', x_ticks_minor=5,
@@ -619,8 +632,10 @@
                     ylabel: "Voltage"
                     xmin: 0
                     xmax: 150
-                    ymin:-1
-                    ymax:1
+                    ymin:-3.3
+                    ymax:3.3
+                    x_ticks_major:25
+                    y_ticks_major:0.1
 
             GridLayout:
                 size_hint_y: 0.4
