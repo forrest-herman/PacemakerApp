@@ -72,7 +72,7 @@ def serialRequest():
     pacemaker_serial.write(serialRequest)
 
 def serialReceive():
-    inputRead = struct.unpack('<ff',pacemaker_serial.read(8)) # 2 floats
+    inputRead = struct.unpack('<dddddd',pacemaker_serial.read(48)) ## 3 floats ///// TEMPORARY 5 floats : atrium_egram, ventricle_egram, accel_x, accel_y, accel_z, serial number || 1 uint (serial number)
     return inputRead
 
 
@@ -197,6 +197,7 @@ class RegisterWindow(Screen):
 
 class MainWindow(Screen):
     currentUser = ObjectProperty(None)
+    device = ObjectProperty(None)
     display_active_pacingMode = ObjectProperty(None)
 
     display_LRL_parameter = ObjectProperty(None)
@@ -258,6 +259,7 @@ class MainWindow(Screen):
             self.indicatorColour = [0,1,0,1] ## green
         else: 
             self.indicatorColour = [1,0,0,1] ## defaults to red
+            self.device.text = "No Device"
 
 
     def logout(self):
@@ -305,9 +307,21 @@ class MainWindow(Screen):
         serialConnect()
         if(hardwareConnected):
             self.indicatorColour = [0,1,0,1] ## green
+            try:
+                serialRequest()
+                time.sleep(0.01)
+                serialNum = serialReceive()
+                print(serialNum)
+                self.device.text = "Device " + str(int(serialNum[2]))
+            except:
+                noDeviceError()
+                self.indicatorColour = [1,0,0,1] ## defaults to red
+                self.device.text = "No Device"
         else: 
             self.indicatorColour = [1,0,0,1] ## defaults to red
+            self.device.text = "No Device"
             noDeviceError()
+
 
 
     ## Saves the parameter data into the user_data.txt file to deploy in the future
@@ -413,10 +427,10 @@ class heartbeatGraphPopup(FloatLayout):
         VENT_graphArray = 150*[0.0]
 
         self.ids.graphAtr.add_plot(self.plot1)
-        Clock.schedule_interval(self.get_value_atr, 0.005)
+        Clock.schedule_interval(self.get_value_atr, 0.001)
 
         self.ids.graphVent.add_plot(self.plot2)
-        Clock.schedule_interval(self.get_value_vent, 0.005)
+        Clock.schedule_interval(self.get_value_vent, 0.001)
 
 
     def stopHeartbeat(self):
@@ -431,19 +445,23 @@ class heartbeatGraphPopup(FloatLayout):
         serialRequest()
         print(tupleInput)
         ATR_graphArray.pop(0)
-        ATR_graphArray.append(tupleInput[0]) ## 0 = -3.3 V || 0.5 = 0 V || 1 = 3.3 V
+        x = tupleInput[0]
+        ATR_graphArray.append((x-0.5)*-2*3.3) ## 0 = -3.3 V || 0.5 = 0 V || 1 = 3.3 V
         self.plot1.points = [(i, j) for i, j in enumerate(ATR_graphArray)]
 
         
     def get_value_vent(self, dt):
-        # serial receive
         global VENT_graphArray,tupleInput
+        
         VENT_graphArray.pop(0)
-        VENT_graphArray.append(tupleInput[1])
+        x = tupleInput[1]
+        VENT_graphArray.append((x-0.5)*-2*3.3)
         self.plot2.points = [(i, j) for i, j in enumerate(VENT_graphArray)]
+
 
     def closePopup(self):
         popupWindow.dismiss()
+
 
 # Popup for programmableParameterPopup
 class programmableParametersPopup(FloatLayout):
