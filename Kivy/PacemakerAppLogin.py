@@ -328,14 +328,18 @@ class MainWindow(Screen):
     def deploy(self):
         #add if all values not zero
         #add if statement/try/except to catch possible errors
-        if(hardwareConnected):
-            self.file = open("user_data.txt", "w")
-            self.data = {URL_value, LRL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value, AtrSens_value, VentSens_value, reactionTime_value, recoveryTime}
-            self.file.write(self.currentUsername + ";" + str(URL_value) + ";" + str(LRL_value) + ";" + str(AtrAmp_value) + ";" + str(VentAmp_value) + ";" + str(AtrPulseWidth_value) + ";" + str(VentPulseWidth_value) + ";" + str(VRP_value) + ";" + str(ARP_value) + ";" + str(AtrSens_value) + ";" + str(VentSens_value) + ";" + str(reactionTime_value) + ";" + str(recoveryTime_value) + "\n")
-            self.file.close()
-            serialSend()
+        if(pacingMode != "Not Set"):
+            if(hardwareConnected):
+                self.file = open("user_data.txt", "w")
+                self.data = {URL_value, LRL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value, AtrSens_value, VentSens_value, reactionTime_value, recoveryTime}
+                self.file.write(self.currentUsername + ";" + str(URL_value) + ";" + str(LRL_value) + ";" + str(AtrAmp_value) + ";" + str(VentAmp_value) + ";" + str(AtrPulseWidth_value) + ";" + str(VentPulseWidth_value) + ";" + str(VRP_value) + ";" + str(ARP_value) + ";" + str(AtrSens_value) + ";" + str(VentSens_value) + ";" + str(reactionTime_value) + ";" + str(recoveryTime_value) + "\n")
+                self.file.close()
+                serialSend()
+            else:
+                noDeviceError()
         else:
-            noDeviceError()
+            genericError()
+
 
     # Saves the parameter data into the user_data.txt file to deploy in the future
     def load_data(self):
@@ -367,7 +371,7 @@ class MainWindow(Screen):
             self.data[self.currentUsername] = (LRL_value, URL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value,AtrSens_value, VentSens_value, reactionTime_value, recoveryTime_value)
         
         setLRL(LRL_value)
-        setURL(URL_value)
+        setMSR(URL_value)
         setAtrAmp(AtrAmp_value)
         setVentAmp(VentAmp_value)
         setAtrPulseWidth(AtrPulseWidth_value)
@@ -611,7 +615,67 @@ class textInputPopup(FloatLayout):
         manageWin.current = "welcomeWin"
         manageWin.current = "mainWin"
     
-    
+
+
+## Popup Float Layouts ----------------------------------------
+
+## Generic Errors
+
+class errorPopup(FloatLayout):
+    def closePopup(self):
+        popupWindow.dismiss()
+
+class genericErrorPopup(FloatLayout):
+    def closePopup(self):
+        popupWindow.dismiss()
+
+## maximum accounts reached 
+class errorMaxPopup(FloatLayout):
+    def closePopup(self):
+        popupWindow.dismiss()
+
+class paramErrorPopup(FloatLayout):
+    def closePopup(self):
+        popupWindow_paramError.dismiss()
+
+## Auto-timout Popup
+class successPopup(FloatLayout):
+    def __init__(self, **kwargs):
+        super(successPopup, self).__init__(**kwargs)
+        # call dismiss_popup after 1 second
+        Clock.schedule_once(self.closePopup, 1)
+
+    def closePopup(self, timer):
+        popupWindow.dismiss()
+
+
+
+
+## Global Vars and Functions -----------------------------------------------------------------------------------------------------------------
+
+## Set pacing mode
+def setPacingModetext(mode):
+    global pacingMode
+    pacingMode = mode
+    print(pacingMode)
+
+    global paceLocation, sensingTrue
+
+    ## check if atrium, ventrial, or dual
+    if(pacingMode=="AOO" or pacingMode=="AAI"):
+        paceLocation = 1
+    elif(pacingMode=="VOO" or pacingMode=="VVI"):
+        paceLocation = 2
+
+    ##check sensing or not
+    if(pacingMode=="AAI" or pacingMode=="VVI"):
+        sensingTrue = 1
+    else: sensingTrue = 0
+
+    manageWin.transition = NoTransition()
+    manageWin.current = "welcomeWin"
+    manageWin.current = "mainWin"
+
 ## Set programmable parameters
 def setLRL(num):
     global LRL  ##text
@@ -619,8 +683,8 @@ def setLRL(num):
     LRL_value = num
     LRL = num + " BPM"   ##bpm rate between roughly 30 and 100
     print("LRL: " + LRL)
-
-def setURL(num):
+ 
+def setMSR(num):
     global URL  ##text
     global URL_value ## uint
     URL_value = num
@@ -686,136 +750,19 @@ def setVentSens(num):
 def setreactionTime(num):
     global reactionTime
     global reactionTime_value
-    reactionTime_value = num
+    reactionTime_value = float(num)
     reactionTime = num + " ms"          ##time between 10 to 50 sec
     print("reactionTime: " + reactionTime)
 
 def setrecoveryTime(num):
     global recoveryTime
     global recoveryTime_value
-    recoveryTime_value = num
+    recoveryTime_value = float(num)
     recoveryTime = num + " ms"          ##time between 60 to 960 sec
     print("recoveryTime: " + recoveryTime)
 
 ## add URL
 
-
-## Popup Float Layouts ----------------------------------------
-
-## Generic Errors
-
-class errorPopup(FloatLayout):
-    def closePopup(self):
-        popupWindow.dismiss()
-
-class genericErrorPopup(FloatLayout):
-    def closePopup(self):
-        popupWindow.dismiss()
-
-## maximum accounts reached 
-class errorMaxPopup(FloatLayout):
-    def closePopup(self):
-        popupWindow.dismiss()
-
-class paramErrorPopup(FloatLayout):
-    def closePopup(self):
-        popupWindow_paramError.dismiss()
-
-## Auto-timout Popup
-class successPopup(FloatLayout):
-    def __init__(self, **kwargs):
-        super(successPopup, self).__init__(**kwargs)
-        # call dismiss_popup after 1 second
-        Clock.schedule_once(self.closePopup, 1)
-
-    def closePopup(self, timer):
-        popupWindow.dismiss()
-
-
-
-
-## Global Vars and Functions -----------------------------------------------------------------------------------------------------------------
-
-## Set pacing mode
-def setPacingModetext(mode):
-    global pacingMode
-    pacingMode = mode
-    print(pacingMode)
-
-    global paceLocation, sensingTrue
-
-    ## check if atrium, ventrial, or dual
-    if(pacingMode=="AOO" or pacingMode=="AAI"):
-        paceLocation = 1
-    elif(pacingMode=="VOO" or pacingMode=="VVI"):
-        paceLocation = 2
-
-    ##check sensing or not
-    if(pacingMode=="AAI" or pacingMode=="VVI"):
-        sensingTrue = 1
-    else: sensingTrue = 0
-
-    manageWin.transition = NoTransition()
-    manageWin.current = "welcomeWin"
-    manageWin.current = "mainWin"
-
-
-## Set programmable parameters
-def setLRL(num):
-    global LRL  ##text
-    global LRL_value ## uint
-    LRL_value = num
-    LRL = num + " BPM"   ##bpm rate between roughly 30 and 100
-    print("LRL: " + LRL)
-
-def setMSR(num):
-    global URL  ##text
-    global URL_value ## uint
-    URL_value = num
-    URL = num + " BPM"   ##bpm rate between roughly 80 and 150
-    print("URL: " + URL)
-
-def setAtrAmp(num):
-    global AtrAmp  ##text
-    global AtrAmp_value ## single
-    AtrAmp_value = float(num)
-    AtrAmp = num + " V"   ##voltage between 0 and 5V
-    print("AtrAmp: " + AtrAmp)
-    
-def setAtrPulseWidth(num):
-    global AtrPulseWidth  ##text
-    global AtrPulseWidth_value ## single
-    AtrPulseWidth_value = float(num)
-    AtrPulseWidth = num + " ms"      ##time between ~1 to 30 msec
-    print("AtrPulseWidth: " + AtrPulseWidth)
-    
-def setVentAmp(num):
-    global VentAmp  ##text
-    global VentAmp_value ## single
-    VentAmp_value = float(num)
-    VentAmp = num + " V"   ##voltage between 0 and 5V
-    print("VentAmp: " + VentAmp)
-    
-def setVentPulseWidth(num):
-    global VentPulseWidth  ##text
-    global VentPulseWidth_value ## single
-    VentPulseWidth_value = float(num)
-    VentPulseWidth = num + " ms"    ##time between ~1 to 30 msec
-    print("VentPulseWidth: " + VentPulseWidth)
-    
-def setVRP(num):
-    global VRP  ##text
-    global VRP_value ## single
-    VRP_value = float(num)
-    VRP = num + " ms"           ##time between ~1 to 500 msec
-    print("VRP: " + VRP)
-    
-def setARP(num):
-    global ARP  ##text
-    global ARP_value ## single
-    ARP_value = float(num)
-    ARP = num + " ms"          ##time between ~1 to 500 msec
-    print("ARP: " + ARP)
 
 
 
