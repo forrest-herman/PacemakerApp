@@ -443,7 +443,7 @@ class heartbeatGraphPopup(FloatLayout):
         
         tupleInput = serialReceive()
         serialRequest()
-        print(tupleInput)
+        print(tupleInput[3])
         ATR_graphArray.pop(0)
         x = tupleInput[0]
         ATR_graphArray.append((x-0.5)*-2*3.3) ## 0 = -3.3 V || 0.5 = 0 V || 1 = 3.3 V
