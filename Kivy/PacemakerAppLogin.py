@@ -420,8 +420,8 @@ class heartbeatGraphPopup(FloatLayout):
     
     def __init__(self,):
         super(heartbeatGraphPopup, self).__init__()
-        self.plot1 = MeshLinePlot(color=[1, 0, 0, 1])
-        self.plot2 = MeshLinePlot(color=[1, 0, 0, 1])
+        self.plot1 = MeshLinePlot(color=[1, 1, 1, 1])
+        self.plot2 = MeshLinePlot(color=[1, 1, 1, 1])
     
     def startHeartbeat(self):
         serialRequest()
