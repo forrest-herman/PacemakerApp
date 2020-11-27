@@ -55,7 +55,7 @@ def serialConnect():
 #pacemaker_serial = serial.Serial(port="COM7", baudrate=115200,timeout=1)
 
 def serialSend():
-    AVdelay_value = 15 ######################################################################################### Add AV delay!!!!
+    AVdelay_value = 25 ######################################################################################### Add AV delay!!!!
     AtrAmp_DutyCycle = AtrAmp_value/5.0 *100
     VentAmp_DutyCycle = VentAmp_value/5.0 *100
     AtrSens_DutyCycle = AtrSens_value/3.3 *100
