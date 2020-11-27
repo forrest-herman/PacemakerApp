@@ -55,21 +55,24 @@ def serialConnect():
 #pacemaker_serial = serial.Serial(port="COM7", baudrate=115200,timeout=1)
 
 def serialSend():
+    AVdelay_value = 15 ######################################################################################### Add AV delay!!!!
     AtrAmp_DutyCycle = AtrAmp_value/5.0 *100
     VentAmp_DutyCycle = VentAmp_value/5.0 *100
     AtrSens_DutyCycle = AtrSens_value/3.3 *100
     VentSens_DutyCycle = VentSens_value/3.3 *100
-    ## order of transmission: paceLocation, sensingTrue, LRL,   URL,    AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, ARP,    VRP     AtrSens,    VentSens
-    ## types of transmission: u char        u char       uchar  uchar   float   float    float          float           float   float   float       float
-    serialSend = struct.pack('<BBBBBBffffffff',0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(URL_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value, AtrSens_DutyCycle, VentSens_DutyCycle) ## byte list of length 38 bytes
+    ## order of transmission: paceLocation, sensingTrue, LRL,   URL,    AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, ARP,    VRP     AtrSens,    VentSens,   AVdelay
+    ## types of transmission: u char        u char       uchar  uchar   float   float    float          float           float   float   float       float       u int16
+    serialSend = struct.pack('<BBBBBBffffffffH',0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(URL_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value, AtrSens_DutyCycle, VentSens_DutyCycle, AVdelay_value) ## byte list of length 38 bytes
     pacemaker_serial.write(serialSend)
     print(len(serialSend))
     #print(serialSend)
     #print(serialSend.hex())
-    print([0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(URL_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value, AtrSens_DutyCycle,VentSens_DutyCycle])
+    print([0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(URL_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value, AtrSens_DutyCycle,VentSens_DutyCycle,AVdelay_value])
 
 def serialRequest():
-    serialRequest = struct.pack('<BBBBBBffffffff',0x16,0x22, 0, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0) ## byte list of length 38 bytes
+    serialRequest = struct.pack('<BBBBBBffffffffH',0x16,0x22, 0, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,0) ## byte list of length 40 bytes
+    print(len(serialRequest))
+    #print(serialSend.dec())
     pacemaker_serial.write(serialRequest)
 
 def serialReceive():
@@ -667,11 +670,16 @@ def setPacingModetext(mode):
         paceLocation = 1
     elif(pacingMode=="VOO" or pacingMode=="VVI"):
         paceLocation = 2
+    elif(pacingMode=="DOO" or pacingMode=="DOOR"):
+        paceLocation = 3
 
     ##check sensing or not
     if(pacingMode=="AAI" or pacingMode=="VVI"):
         sensingTrue = 1
     else: sensingTrue = 0
+
+    ## check rate Adative or not 
+    
 
     manageWin.transition = NoTransition()
     manageWin.current = "welcomeWin"
