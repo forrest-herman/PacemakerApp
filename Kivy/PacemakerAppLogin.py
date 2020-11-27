@@ -22,6 +22,7 @@ from kivy.clock import Clock
 import time
 import serial
 import struct
+import math
 from kivy.garden.graph import MeshLinePlot
 from numpy import random
 
@@ -447,7 +448,7 @@ class heartbeatGraphPopup(FloatLayout):
         
         tupleInput = serialReceive()
         serialRequest()
-        print(tupleInput[3])
+        print(math.sqrt(pow(tupleInput[3],2)+pow(tupleInput[4],2)+pow(tupleInput[5],2)))
         ATR_graphArray.pop(0)
         x = tupleInput[0]
         ATR_graphArray.append((x-0.5)*-2*3.3) ## 0 = -3.3 V || 0.5 = 0 V || 1 = 3.3 V
