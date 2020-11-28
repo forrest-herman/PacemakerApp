@@ -59,17 +59,17 @@ def serialSend():
     VentAmp_DutyCycle = VentAmp_value/5.0 *100
     AtrSens_DutyCycle = AtrSens_value/3.3 *100
     VentSens_DutyCycle = VentSens_value/3.3 *100
-    ## order of transmission: paceLocation, sensingTrue, LRL,   URL,    AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, ARP,    VRP     AtrSens,    VentSens,   AVDelay
-    ## types of transmission: u char        u char       uchar  uchar   float   float    float          float           float   float   float       float       u int16
-    serialSend = struct.pack('<BBBBBBffffffffH',0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(URL_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value, AtrSens_DutyCycle, VentSens_DutyCycle, AVDelay_value) ## byte list of length 38 bytes
+    ## order of transmission: paceLocation, sensingTrue, LRL,   URL,    AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, ARP,    VRP     AtrSens,    VentSens,   AVDelay     rateAdaptiveTrue,       responseFactor,         acc_threshold_LOW       acc_threshold_MED       acc_threshold_HIGH      reactionTime        recoveryTime
+    ## types of transmission: u char        u char       uchar  uchar   float   float    float          float           float   float   float       float       u int16     uint8                   uint8                   single                  single                  single                      uint8           uint16
+    serialSend = struct.pack('<BBBBBBffffffffHBBfffBH',0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(URL_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value, AtrSens_DutyCycle, VentSens_DutyCycle, AVDelay_value,rateAdaptiveTrue, resFactor_value, AccThreshold1_value,AccThreshold2_value,AccThreshold3_value,reactionTime_value,recoveryTime_value) ## byte list of length 38 bytes
     pacemaker_serial.write(serialSend)
     print(len(serialSend))
     #print(serialSend)
     #print(serialSend.hex())
-    print([0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(URL_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value, AtrSens_DutyCycle,VentSens_DutyCycle,AVDelay_value])
+    print([0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(URL_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value, AtrSens_DutyCycle,VentSens_DutyCycle,AVDelay_value,rateAdaptiveTrue,resFactor_value,AccThreshold1_value,AccThreshold2_value,AccThreshold3_value,reactionTime_value,recoveryTime_value])
 
 def serialRequest():
-    serialRequest = struct.pack('<BBBBBBffffffffH',0x16,0x22, 0, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,0) ## byte list of length 40 bytes
+    serialRequest = struct.pack('<BBBBBBffffffffH',0x16,0x22, 0, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,0,0,0,0.0,0.0,0.0,0,0) ## byte list of length 57 bytes
     print(len(serialRequest))
     #print(serialSend.dec())
     pacemaker_serial.write(serialRequest)
@@ -500,7 +500,7 @@ class programmableParametersPopup(FloatLayout):
         manageWin.current = "welcomeWin"
         manageWin.current = "mainWin"
 
-##PULL THIS >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 # Popup for text input
 class textInputPopup(FloatLayout):
 
@@ -511,7 +511,7 @@ class textInputPopup(FloatLayout):
         num = self.inputField.text
         global popupWindow_paramError
         try:
-            int(num)
+            float(num)
         except:
             show = paramErrorPopup()
             popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
@@ -537,7 +537,7 @@ class textInputPopup(FloatLayout):
 
             ## AtrAmp -------
             elif index == 3:
-                if int(num) > 5 or int(num) < 0:
+                if float(num) > 5 or float(num) < 0:
                     show = paramErrorPopup()
                     popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
                     popupWindow_paramError.open()
@@ -564,7 +564,7 @@ class textInputPopup(FloatLayout):
 
             ## VentAmp -------
             elif index == 6:
-                if int(num) > 5 or int(num) < 0:
+                if float(num) > 5 or float(num) < 0:
                     show = paramErrorPopup()
                     popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
                     popupWindow_paramError.open()
@@ -827,28 +827,28 @@ def setAVDelay(num):
 def setresFactor(num):
     global resFactor
     global resFactor_value
-    resFactor_value = num
+    resFactor_value = int(num)
     resFactor = str(num) + " "
     print("Response Factor: " + resFactor)
 
 def setAccThreshold1(num):
     global AccThreshold1
     global AccThreshold1_value
-    AccThreshold1_value = num
+    AccThreshold1_value = float(num)
     AccThreshold1 = str(num) + " "
     print("Response Factor: " + AccThreshold1)
 
 def setAccThreshold2(num):
     global AccThreshold2
     global AccThreshold2_value
-    AccThreshold2_value = num
+    AccThreshold2_value = float(num)
     AccThreshold2 = str(num) + " "
     print("Response Factor: " + AccThreshold2)
 
 def setAccThreshold3(num):
     global AccThreshold3
     global AccThreshold3_value
-    AccThreshold3_value = num
+    AccThreshold3_value = float(num)
     AccThreshold3 = str(num) + " "
     print("Response Factor: " + AccThreshold3)
 
