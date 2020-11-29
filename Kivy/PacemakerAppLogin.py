@@ -716,20 +716,20 @@ def setPacingModetext(mode):
     global paceLocation, sensingTrue, rateAdaptiveTrue
 
     ## check if atrium, ventrial, or dual
-    if(pacingMode=="AOO" or pacingMode=="AAI" or pacingMode=="AOOR"):
+    if(pacingMode=="AOO" or pacingMode=="AAI" or pacingMode=="AOOR" or pacingMode=="AAIR"):
         paceLocation = 1
-    elif(pacingMode=="VOO" or pacingMode=="VVI" or pacingMode=="VOOR"):
+    elif(pacingMode=="VOO" or pacingMode=="VVI" or pacingMode=="VOOR" or pacingMode=="VVIR"):
         paceLocation = 2
-    elif(pacingMode=="DOO" or pacingMode=="DOOR"):
+    elif(pacingMode=="DOO" or pacingMode=="DOOR" or pacingMode=="DDDR"):
         paceLocation = 3
 
     ##check sensing or not
-    if(pacingMode=="AAI" or pacingMode=="VVI"):
+    if(pacingMode=="AAI" or pacingMode=="VVI" or pacingMode=="AAIR" or pacingMode=="VVIR"):
         sensingTrue = 1
     else: sensingTrue = 0
 
     ## check rate Adative or not 
-    if(pacingMode=="AOOR" or pacingMode=="VOOR" or pacingMode=="DOOR"):
+    if(pacingMode=="AOOR" or pacingMode=="VOOR" or pacingMode=="DOOR" or pacingMode=="AAIR" or pacingMode=="VVIR" or pacingMode=="DDDR"):
         rateAdaptiveTrue = 1
     else: rateAdaptiveTrue = 0
 

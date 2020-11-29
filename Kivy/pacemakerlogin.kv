@@ -580,7 +580,7 @@
             spacing: 30
 
             GridLayout:
-                size_hint_y: 0.8
+                size_hint_y: 0.9
                 rows: 11 # number of modes
                 spacing: 10
                 
@@ -626,6 +626,12 @@
                     on_press: 
                         root.setPacingMode("VOOR")
                         root.closePopup()
+
+                Button:
+                    text:"DOOR"
+                    on_press: 
+                        root.setPacingMode("DOOR")
+                        root.closePopup()
                 
                 Button:
                     text:"AAIR"
@@ -636,16 +642,19 @@
                 Button:
                     text:"VVIR"
                     on_press: 
-                        root.setPacingMode("DOOR")
+                        root.setPacingMode("VVIR")
                         root.closePopup()
 
-                # Button:
-                #     text:"Etc."
+                Button:
+                    text:"DDDR"
+                    on_press: 
+                        root.setPacingMode("DDDR")
+                        root.closePopup()
 
 
             GridLayout:
                 rows:1
-                size_hint_y: 0.2
+                size_hint_y: 0.1
 
                 Button:
                     text:"Cancel"
