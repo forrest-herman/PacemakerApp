@@ -75,7 +75,7 @@ def serialRequest():
     pacemaker_serial.write(serialRequest)
 
 def serialReceive():
-    inputRead = struct.unpack('<dddddd',pacemaker_serial.read(48)) ## 3 floats ///// TEMPORARY 5 floats : atrium_egram, ventricle_egram, accel_x, accel_y, accel_z, serial number || 1 uint (serial number)
+    inputRead = struct.unpack('<dddd',pacemaker_serial.read(32)) ##48 bytes || 3 + 1 (testing) floats ///// TEMPORARY 5 floats : atrium_egram, ventricle_egram, accel_x, accel_y, accel_z, serial number || 1 uint (serial number)
     return inputRead
 
 
@@ -320,7 +320,9 @@ class MainWindow(Screen):
             noDeviceError()
 
     def serialConnectMain(self):
-        serialConnect()
+        if(not hardwareConnected):
+            serialConnect()
+
         if(hardwareConnected):
             self.indicatorColour = [0,1,0,1] ## green
             try:
@@ -459,8 +461,8 @@ class heartbeatGraphPopup(FloatLayout):
         
         tupleInput = serialReceive()
         serialRequest()
-        print(math.sqrt(pow(tupleInput[3],2)+pow(tupleInput[4],2)+pow(tupleInput[5],2)))
-        print(tupleInput[2])
+        #print(math.sqrt(pow(tupleInput[3],2)+pow(tupleInput[4],2)+pow(tupleInput[5],2)))
+        print(tupleInput[3])
         ATR_graphArray.pop(0)
         x = tupleInput[0]
         ATR_graphArray.append((x-0.5)*-2*3.3) ## 0 = -3.3 V || 0.5 = 0 V || 1 = 3.3 V
