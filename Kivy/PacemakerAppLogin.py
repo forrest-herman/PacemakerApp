@@ -59,14 +59,14 @@ def serialSend():
     VentAmp_DutyCycle = VentAmp_value/5.0 *100
     AtrSens_DutyCycle = AtrSens_value/3.3 *100
     VentSens_DutyCycle = VentSens_value/3.3 *100
-    ## order of transmission: paceLocation, sensingTrue, LRL,   URL,    AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, ARP,    VRP     AtrSens,    VentSens,   AVDelay     rateAdaptiveTrue,       responseFactor,         acc_threshold_LOW       acc_threshold_MED       acc_threshold_HIGH      reactionTime        recoveryTime
+    ## order of transmission: paceLocation, sensingTrue, LRL,   MSR,    AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, ARP,    VRP     AtrSens,    VentSens,   AVDelay     rateAdaptiveTrue,       responseFactor,         acc_threshold_LOW       acc_threshold_MED       acc_threshold_HIGH      reactionTime        recoveryTime
     ## types of transmission: u char        u char       uchar  uchar   float   float    float          float           float   float   float       float       u int16     uint8                   uint8                   single                  single                  single                      uint8           uint16
-    serialSend = struct.pack('<BBBBBBffffffffHBBfffBH',0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(URL_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value, AtrSens_DutyCycle, VentSens_DutyCycle, AVDelay_value,rateAdaptiveTrue, resFactor_value, AccThreshold1_value,AccThreshold2_value,AccThreshold3_value,reactionTime_value,recoveryTime_value) ## byte list of length 57 bytes
+    serialSend = struct.pack('<BBBBBBffffffffHBBfffBH',0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(MSR_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value, AtrSens_DutyCycle, VentSens_DutyCycle, AVDelay_value,rateAdaptiveTrue, resFactor_value, AccThreshold1_value,AccThreshold2_value,AccThreshold3_value,reactionTime_value,recoveryTime_value) ## byte list of length 57 bytes
     pacemaker_serial.write(serialSend)
     print(len(serialSend))
     #print(serialSend)
     #print(serialSend.hex())
-    print([0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(URL_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value, AtrSens_DutyCycle,VentSens_DutyCycle,AVDelay_value,rateAdaptiveTrue,resFactor_value,AccThreshold1_value,AccThreshold2_value,AccThreshold3_value,reactionTime_value,recoveryTime_value])
+    print([0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(MSR_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value, AtrSens_DutyCycle,VentSens_DutyCycle,AVDelay_value,rateAdaptiveTrue,resFactor_value,AccThreshold1_value,AccThreshold2_value,AccThreshold3_value,reactionTime_value,recoveryTime_value])
 
 def serialRequest():
     serialRequest = struct.pack('<BBBBBBffffffffHBBfffBH',0x16,0x22, 0, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,0,0,0,0.0,0.0,0.0,0,0) ## byte list of length 57 bytes
@@ -205,7 +205,7 @@ class MainWindow(Screen):
     display_active_pacingMode = ObjectProperty(None)
 
     display_LRL_parameter = ObjectProperty(None)
-    display_URL_parameter = ObjectProperty(None)
+    display_MSR_parameter = ObjectProperty(None)
     display_AtrAmp_parameter = ObjectProperty(None)
     display_VentAmp_parameter = ObjectProperty(None)
     display_AtrPulseWidth_parameter = ObjectProperty(None)
@@ -228,12 +228,12 @@ class MainWindow(Screen):
     ## Indicator for connected Hardware
     indicatorColour = ListProperty([1,0,0,1]) ## defaults to red, becomes green if connected
     
-    global pacingMode, LRL, URL, AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, VRP, ARP, AtrSens, VentSens, reactionTime, recoveryTime, AVDelay, resFactor, AccThreshold1, AccThreshold2, AccThreshold3 
-    pacingMode, LRL, URL, AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, VRP, ARP, AtrSens, VentSens, reactionTime, recoveryTime, AVDelay, resFactor, AccThreshold1, AccThreshold2, AccThreshold3 = 18*["Not Set"]
+    global pacingMode, LRL, MSR, AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, VRP, ARP, AtrSens, VentSens, reactionTime, recoveryTime, AVDelay, resFactor, AccThreshold1, AccThreshold2, AccThreshold3 
+    pacingMode, LRL, MSR, AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, VRP, ARP, AtrSens, VentSens, reactionTime, recoveryTime, AVDelay, resFactor, AccThreshold1, AccThreshold2, AccThreshold3 = 18*["Not Set"]
 
-    global paceLocation, sensingTrue, rateAdaptiveTrue, LRL_value, URL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value, AtrSens_value, VentSens_value, reactionTime_value, recoveryTime_value, AVDelay_value, resFactor_value, AccThreshold1_value, AccThreshold2_value, AccThreshold3_value
+    global paceLocation, sensingTrue, rateAdaptiveTrue, LRL_value, MSR_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value, AtrSens_value, VentSens_value, reactionTime_value, recoveryTime_value, AVDelay_value, resFactor_value, AccThreshold1_value, AccThreshold2_value, AccThreshold3_value
     ## uints
-    paceLocation, sensingTrue, responseFactor, rateAdaptiveTrue, LRL_value, URL_value, reactionTime_value, recoveryTime_value, AVDelay_value, resFactor_value = 10*[0]
+    paceLocation, sensingTrue, responseFactor, rateAdaptiveTrue, LRL_value, MSR_value, reactionTime_value, recoveryTime_value, AVDelay_value, resFactor_value = 10*[0]
 
     #floats
     AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value, AtrSens_value, VentSens_value, AccThreshold1_value, AccThreshold2_value, AccThreshold3_value = 11*[0.0]
@@ -247,7 +247,7 @@ class MainWindow(Screen):
         self.currentUser.text = "Active User: " + userDatabase.get_user(self.currentUsername)[0]
         self.display_active_pacingMode.text = "Pacing Mode: " + pacingMode
         self.display_LRL_parameter.text = "Lower Rate Limit: " + LRL
-        self.display_URL_parameter.text = "Maximum Sensor Rate: " + URL
+        self.display_MSR_parameter.text = "Maximum Sensor Rate: " + MSR
         self.display_AtrAmp_parameter.text = "Atrium Aplitude: " + AtrAmp
         self.display_VentAmp_parameter.text = "Ventricle Amplitude: " + VentAmp
         self.display_AtrPulseWidth_parameter.text = "AtrPulseWidth: " + AtrPulseWidth
@@ -266,7 +266,7 @@ class MainWindow(Screen):
 
 
         ##add new parameters
-        #self.display_URL_parameter.text = "Upper Rate Limit: " + URL
+        #self.display_MSR_parameter.text = "Upper Rate Limit: " + MSR
         
 
         ## set hardware connected indicator
@@ -344,11 +344,11 @@ class MainWindow(Screen):
     def deploy(self):
         #add if all values not zero
         #add if statement/try/except to catch possible errors
-        if((pacingMode != "Not Set")): #and (URL_value >= LRL_value)
+        if((pacingMode != "Not Set")): #and (MSR_value >= LRL_value)
             if(hardwareConnected):
                 self.file = open("user_data.txt", "w")
-                self.data = {pacingMode, URL_value, LRL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value, AtrSens_value, VentSens_value, reactionTime_value, recoveryTime_value, AVDelay_value, resFactor_value, AccThreshold1_value, AccThreshold2_value, AccThreshold3_value}
-                self.file.write(self.currentUsername + ";" + pacingMode + ";" + str(LRL_value) + ";" + str(URL_value) + ";" + str(AtrAmp_value) + ";" + str(VentAmp_value) + ";" + str(AtrPulseWidth_value) + ";" + str(VentPulseWidth_value) + ";" + str(VRP_value) + ";" + str(ARP_value) + ";" + str(AtrSens_value) + ";" + str(VentSens_value) + ";" + str(reactionTime_value) + ";" + str(recoveryTime_value) + ";" + str(AVDelay_value) + ";" + str(resFactor_value) + ";" + str(AccThreshold1_value) + ";" + str(AccThreshold2_value) + ";" + str(AccThreshold3_value) + "\n")
+                self.data = {pacingMode, MSR_value, LRL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value, AtrSens_value, VentSens_value, reactionTime_value, recoveryTime_value, AVDelay_value, resFactor_value, AccThreshold1_value, AccThreshold2_value, AccThreshold3_value}
+                self.file.write(self.currentUsername + ";" + pacingMode + ";" + str(LRL_value) + ";" + str(MSR_value) + ";" + str(AtrAmp_value) + ";" + str(VentAmp_value) + ";" + str(AtrPulseWidth_value) + ";" + str(VentPulseWidth_value) + ";" + str(VRP_value) + ";" + str(ARP_value) + ";" + str(AtrSens_value) + ";" + str(VentSens_value) + ";" + str(reactionTime_value) + ";" + str(recoveryTime_value) + ";" + str(AVDelay_value) + ";" + str(resFactor_value) + ";" + str(AccThreshold1_value) + ";" + str(AccThreshold2_value) + ";" + str(AccThreshold3_value) + "\n")
                 self.file.close()
                 serialSend()
             else:
@@ -364,11 +364,11 @@ class MainWindow(Screen):
         self.data = {}
 
         for line in self.file:
-            self.currentUsername, pacingMode, LRL_value, URL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value, AtrSens_value, VentSens_value, reactionTime_value, recoveryTime_value, AVDelay_value, resFactor_value, AccThreshold1_value, AccThreshold2_value, AccThreshold3_value = line.strip().split(";")
-            self.data[self.currentUsername] = (pacingMode, LRL_value, URL_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value,AtrSens_value, VentSens_value, reactionTime_value, recoveryTime_value, AVDelay_value, resFactor_value, AccThreshold1_value, AccThreshold2_value, AccThreshold3_value)
+            self.currentUsername, pacingMode, LRL_value, MSR_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value, AtrSens_value, VentSens_value, reactionTime_value, recoveryTime_value, AVDelay_value, resFactor_value, AccThreshold1_value, AccThreshold2_value, AccThreshold3_value = line.strip().split(";")
+            self.data[self.currentUsername] = (pacingMode, LRL_value, MSR_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value,AtrSens_value, VentSens_value, reactionTime_value, recoveryTime_value, AVDelay_value, resFactor_value, AccThreshold1_value, AccThreshold2_value, AccThreshold3_value)
         
         setLRL(LRL_value)
-        setMSR(URL_value)
+        setMSR(MSR_value)
         setAtrAmp(AtrAmp_value)
         setVentAmp(VentAmp_value)
         setAtrPulseWidth(AtrPulseWidth_value)
@@ -390,7 +390,7 @@ class MainWindow(Screen):
         self.currentUser.text = "Active User: " + userDatabase.get_user(self.currentUsername)[0]
         self.display_active_pacingMode.text = "Pacing Mode: " + pacingMode
         self.display_LRL_parameter.text = "Lower Rate Limit: " + LRL
-        self.display_URL_parameter.text = "Maximum Sensor Rate: " + URL
+        self.display_MSR_parameter.text = "Maximum Sensor Rate: " + MSR
         self.display_AtrAmp_parameter.text = "Atrium Aplitude: " + AtrAmp
         self.display_VentAmp_parameter.text = "Ventricle Amplitude: " + VentAmp
         self.display_AtrPulseWidth_parameter.text = "AtrPulseWidth: " + AtrPulseWidth
@@ -411,8 +411,8 @@ class MainWindow(Screen):
         
     def reset(self):
     
-        global pacingMode, LRL, URL, AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, VRP, ARP, AtrSens, VentSens, reactionTime, recoveryTime, AVDelay, resFactor, AccThreshold1, AccThreshold2, AccThreshold3
-        pacingMode, LRL, URL, AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, VRP, ARP, AtrSens, VentSens, reactionTime, recoveryTime, AVDelay, resFactor, AccThreshold1, AccThreshold2, AccThreshold3  = 18*["Not Set"]
+        global pacingMode, LRL, MSR, AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, VRP, ARP, AtrSens, VentSens, reactionTime, recoveryTime, AVDelay, resFactor, AccThreshold1, AccThreshold2, AccThreshold3
+        pacingMode, LRL, MSR, AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, VRP, ARP, AtrSens, VentSens, reactionTime, recoveryTime, AVDelay, resFactor, AccThreshold1, AccThreshold2, AccThreshold3  = 18*["Not Set"]
 
 
 ## Declare all Popups Layout Classes -----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -745,11 +745,11 @@ def setLRL(num):
     print("LRL: " + LRL)
  
 def setMSR(num):
-    global URL  ##text
-    global URL_value ## uint
-    URL_value = num
-    URL = str(num) + " BPM"   ##bpm rate between roughly 80 and 150
-    print("URL: " + URL)
+    global MSR  ##text
+    global MSR_value ## uint
+    MSR_value = num
+    MSR = str(num) + " BPM"   ##bpm rate between roughly 80 and 150
+    print("MSR: " + MSR)
 
 def setAtrAmp(num):
     global AtrAmp  ##text
@@ -856,7 +856,7 @@ def setAccThreshold3(num):
     AccThreshold3 = str(num) + " "
     print("Response Factor: " + AccThreshold3)
 
-# add URL
+# add URL for DDDR mode
 
 
 
