@@ -70,12 +70,12 @@ def serialSend():
 
 def serialRequest():
     serialRequest = struct.pack('<BBBBBBffffffffHBBfffBH',0x16,0x22, 0, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,0,0,0,0.0,0.0,0.0,0,0) ## byte list of length 57 bytes
-    print(len(serialRequest))
+    #print(len(serialRequest))
     #print(serialSend.dec())
     pacemaker_serial.write(serialRequest)
 
 def serialReceive():
-    inputRead = struct.unpack('<dddd',pacemaker_serial.read(32)) ##48 bytes || 3 + 1 (testing) floats ///// TEMPORARY 5 floats : atrium_egram, ventricle_egram, accel_x, accel_y, accel_z, serial number || 1 uint (serial number)
+    inputRead = struct.unpack('<dddf',pacemaker_serial.read(28)) ##48 bytes || 3 + 1 (testing) floats ///// TEMPORARY 5 floats : atrium_egram, ventricle_egram, accel_x, accel_y, accel_z, serial number || 1 uint (serial number)
     return inputRead
 
 
@@ -445,10 +445,10 @@ class heartbeatGraphPopup(FloatLayout):
         VENT_graphArray = 150*[0.0]
 
         self.ids.graphAtr.add_plot(self.plot1)
-        Clock.schedule_interval(self.get_value_atr, 0.5)
+        Clock.schedule_interval(self.get_value_atr, 0.05) ## 0.001
 
         self.ids.graphVent.add_plot(self.plot2)
-        Clock.schedule_interval(self.get_value_vent, 0.5)
+        Clock.schedule_interval(self.get_value_vent, 0.05)
 
 
     def stopHeartbeat(self):
@@ -522,7 +522,7 @@ class textInputPopup(FloatLayout):
         else:
             ## LRL -------
             if index == 1:
-                if int(num) > 150 or int(num) < 40:
+                if int(num) > 150 or int(num) < 30:
                     show = paramErrorPopup()
                     popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
                     popupWindow_paramError.open()
@@ -625,7 +625,7 @@ class textInputPopup(FloatLayout):
                     setrecoveryTime(num)
             
             elif index == 13:
-                if int(num) > 300 or int(num) < 17:
+                if int(num) > 300 or int(num) < 70:
                     show = paramErrorPopup()
                     popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
                     popupWindow_paramError.open()
@@ -713,7 +713,7 @@ def setPacingModetext(mode):
     pacingMode = mode
     print(pacingMode)
 
-    global paceLocation, sensingTrue
+    global paceLocation, sensingTrue, rateAdaptiveTrue
 
     ## check if atrium, ventrial, or dual
     if(pacingMode=="AOO" or pacingMode=="AAI" or pacingMode=="AOOR"):
