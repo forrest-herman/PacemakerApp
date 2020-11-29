@@ -724,7 +724,7 @@ def setPacingModetext(mode):
         paceLocation = 3
 
     ##check sensing or not
-    if(pacingMode=="AAI" or pacingMode=="VVI" or pacingMode=="AAIR" or pacingMode=="VVIR"):
+    if(pacingMode=="AAI" or pacingMode=="VVI" or pacingMode=="AAIR" or pacingMode=="VVIR" or pacingMode=="DDDR"):
         sensingTrue = 1
     else: sensingTrue = 0
 
