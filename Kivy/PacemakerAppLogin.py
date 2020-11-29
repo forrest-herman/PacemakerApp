@@ -61,7 +61,7 @@ def serialSend():
     VentSens_DutyCycle = VentSens_value/3.3 *100
     ## order of transmission: paceLocation, sensingTrue, LRL,   URL,    AtrAmp, VentAmp, AtrPulseWidth, VentPulseWidth, ARP,    VRP     AtrSens,    VentSens,   AVDelay     rateAdaptiveTrue,       responseFactor,         acc_threshold_LOW       acc_threshold_MED       acc_threshold_HIGH      reactionTime        recoveryTime
     ## types of transmission: u char        u char       uchar  uchar   float   float    float          float           float   float   float       float       u int16     uint8                   uint8                   single                  single                  single                      uint8           uint16
-    serialSend = struct.pack('<BBBBBBffffffffHBBfffBH',0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(URL_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value, AtrSens_DutyCycle, VentSens_DutyCycle, AVDelay_value,rateAdaptiveTrue, resFactor_value, AccThreshold1_value,AccThreshold2_value,AccThreshold3_value,reactionTime_value,recoveryTime_value) ## byte list of length 38 bytes
+    serialSend = struct.pack('<BBBBBBffffffffHBBfffBH',0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(URL_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value, AtrSens_DutyCycle, VentSens_DutyCycle, AVDelay_value,rateAdaptiveTrue, resFactor_value, AccThreshold1_value,AccThreshold2_value,AccThreshold3_value,reactionTime_value,recoveryTime_value) ## byte list of length 57 bytes
     pacemaker_serial.write(serialSend)
     print(len(serialSend))
     #print(serialSend)
@@ -69,7 +69,7 @@ def serialSend():
     print([0x16,0x55, paceLocation, sensingTrue, int(LRL_value), int(URL_value), AtrAmp_DutyCycle, VentAmp_DutyCycle, AtrPulseWidth_value, VentPulseWidth_value, ARP_value, VRP_value, AtrSens_DutyCycle,VentSens_DutyCycle,AVDelay_value,rateAdaptiveTrue,resFactor_value,AccThreshold1_value,AccThreshold2_value,AccThreshold3_value,reactionTime_value,recoveryTime_value])
 
 def serialRequest():
-    serialRequest = struct.pack('<BBBBBBffffffffH',0x16,0x22, 0, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,0,0,0,0.0,0.0,0.0,0,0) ## byte list of length 57 bytes
+    serialRequest = struct.pack('<BBBBBBffffffffHBBfffBH',0x16,0x22, 0, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,0,0,0,0.0,0.0,0.0,0,0) ## byte list of length 57 bytes
     print(len(serialRequest))
     #print(serialSend.dec())
     pacemaker_serial.write(serialRequest)
@@ -327,7 +327,7 @@ class MainWindow(Screen):
                 serialRequest()
                 time.sleep(0.01)
                 serialNum = serialReceive()
-                print(serialNum)
+                print(serialNum[2])
                 self.device.text = "Device " + str(int(serialNum[2]))
             except:
                 noDeviceError()
@@ -443,10 +443,10 @@ class heartbeatGraphPopup(FloatLayout):
         VENT_graphArray = 150*[0.0]
 
         self.ids.graphAtr.add_plot(self.plot1)
-        Clock.schedule_interval(self.get_value_atr, 0.001)
+        Clock.schedule_interval(self.get_value_atr, 0.5)
 
         self.ids.graphVent.add_plot(self.plot2)
-        Clock.schedule_interval(self.get_value_vent, 0.001)
+        Clock.schedule_interval(self.get_value_vent, 0.5)
 
 
     def stopHeartbeat(self):
@@ -460,6 +460,7 @@ class heartbeatGraphPopup(FloatLayout):
         tupleInput = serialReceive()
         serialRequest()
         print(math.sqrt(pow(tupleInput[3],2)+pow(tupleInput[4],2)+pow(tupleInput[5],2)))
+        print(tupleInput[2])
         ATR_graphArray.pop(0)
         x = tupleInput[0]
         ATR_graphArray.append((x-0.5)*-2*3.3) ## 0 = -3.3 V || 0.5 = 0 V || 1 = 3.3 V
@@ -606,7 +607,7 @@ class textInputPopup(FloatLayout):
                     setVentSens(num)
             
             elif index == 11:
-                if (float(num) > 50 or float(num) < 10):
+                if (int(num) > 50 or int(num) < 10):
                     show = paramErrorPopup()
                     popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
                     popupWindow_paramError.open()
@@ -614,7 +615,7 @@ class textInputPopup(FloatLayout):
                     setreactionTime(num)
             
             elif index == 12:
-                if float(num) > 960 or float(num) < 60:
+                if int(num) > 960 or int(num) < 60:
                     show = paramErrorPopup()
                     popupWindow_paramError = Popup(title="Input Error", content=show,size_hint=(None,None), size=(300,200))
                     popupWindow_paramError.open()
@@ -713,9 +714,9 @@ def setPacingModetext(mode):
     global paceLocation, sensingTrue
 
     ## check if atrium, ventrial, or dual
-    if(pacingMode=="AOO" or pacingMode=="AAI"):
+    if(pacingMode=="AOO" or pacingMode=="AAI" or pacingMode=="AOOR"):
         paceLocation = 1
-    elif(pacingMode=="VOO" or pacingMode=="VVI"):
+    elif(pacingMode=="VOO" or pacingMode=="VVI" or pacingMode=="VOOR"):
         paceLocation = 2
     elif(pacingMode=="DOO" or pacingMode=="DOOR"):
         paceLocation = 3
@@ -726,7 +727,10 @@ def setPacingModetext(mode):
     else: sensingTrue = 0
 
     ## check rate Adative or not 
-    
+    if(pacingMode=="AOOR" or pacingMode=="VOOR" or pacingMode=="DOOR"):
+        rateAdaptiveTrue = 1
+    else: rateAdaptiveTrue = 0
+
 
     manageWin.transition = NoTransition()
     manageWin.current = "welcomeWin"
@@ -806,22 +810,22 @@ def setVentSens(num):
 def setreactionTime(num):
     global reactionTime
     global reactionTime_value
-    reactionTime_value = float(num)
-    reactionTime = str(num) + " ms"          ##time between 10 to 50 sec
+    reactionTime_value = int(num)
+    reactionTime = str(num) + " sec"          ##time between 10 to 50 sec
     print("reactionTime: " + reactionTime)
 
 def setrecoveryTime(num):
     global recoveryTime
     global recoveryTime_value
-    recoveryTime_value = float(num)
-    recoveryTime = str(num) + " ms"          ##time between 60 to 960 sec
+    recoveryTime_value = int(num)
+    recoveryTime = str(num) + " sec"          ##time between 60 to 960 sec
     print("recoveryTime: " + recoveryTime)
 
 def setAVDelay(num):
     global AVDelay
     global AVDelay_value
     AVDelay_value = int(num)
-    AVDelay = str(num) + " "          ##time between 60 to 960 sec
+    AVDelay = str(num) + " ms"          
     print("AV Delay: " + AVDelay)
 
 def setresFactor(num):
