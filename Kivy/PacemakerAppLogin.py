@@ -357,57 +357,60 @@ class MainWindow(Screen):
                 noDeviceError()
         else:
             genericError()
-            print(":why:")
+            #print(":why:")
 
 
     def loadPrevious(self):
 
         self.file = open("user_data.txt", "r")
         self.data = {}
+        try:
+            for line in self.file:
+                self.currentUsername, pacingMode, LRL_value, MSR_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value, AtrSens_value, VentSens_value, reactionTime_value, recoveryTime_value, AVDelay_value, resFactor_value, AccThreshold1_value, AccThreshold2_value, AccThreshold3_value = line.strip().split(";")
+                self.data[self.currentUsername] = (pacingMode, LRL_value, MSR_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value,AtrSens_value, VentSens_value, reactionTime_value, recoveryTime_value, AVDelay_value, resFactor_value, AccThreshold1_value, AccThreshold2_value, AccThreshold3_value)
+            
+            setLRL(LRL_value)
+            setMSR(MSR_value)
+            setAtrAmp(AtrAmp_value)
+            setVentAmp(VentAmp_value)
+            setAtrPulseWidth(AtrPulseWidth_value)
+            setVentPulseWidth(VentPulseWidth_value)
+            setVRP(VRP_value)
+            setARP(ARP_value)
+            setAtrSens(AtrSens_value)
+            setVentSens(VentSens_value)
+            setreactionTime(reactionTime_value)
+            setrecoveryTime(recoveryTime_value)
+            setAVDelay(AVDelay_value)
+            setresFactor(resFactor_value)
+            setAccThreshold1(AccThreshold1_value)
+            setAccThreshold2(AccThreshold2_value)
+            setAccThreshold3(AccThreshold3_value)
 
-        for line in self.file:
-            self.currentUsername, pacingMode, LRL_value, MSR_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value, AtrSens_value, VentSens_value, reactionTime_value, recoveryTime_value, AVDelay_value, resFactor_value, AccThreshold1_value, AccThreshold2_value, AccThreshold3_value = line.strip().split(";")
-            self.data[self.currentUsername] = (pacingMode, LRL_value, MSR_value, AtrAmp_value, VentAmp_value, AtrPulseWidth_value, VentPulseWidth_value, VRP_value, ARP_value,AtrSens_value, VentSens_value, reactionTime_value, recoveryTime_value, AVDelay_value, resFactor_value, AccThreshold1_value, AccThreshold2_value, AccThreshold3_value)
-        
-        setLRL(LRL_value)
-        setMSR(MSR_value)
-        setAtrAmp(AtrAmp_value)
-        setVentAmp(VentAmp_value)
-        setAtrPulseWidth(AtrPulseWidth_value)
-        setVentPulseWidth(VentPulseWidth_value)
-        setVRP(VRP_value)
-        setARP(ARP_value)
-        setAtrSens(AtrSens_value)
-        setVentSens(VentSens_value)
-        setreactionTime(reactionTime_value)
-        setrecoveryTime(recoveryTime_value)
-        setAVDelay(AVDelay_value)
-        setresFactor(resFactor_value)
-        setAccThreshold1(AccThreshold1_value)
-        setAccThreshold2(AccThreshold2_value)
-        setAccThreshold3(AccThreshold3_value)
+            setPacingModetext(pacingMode)
 
-        setPacingModetext(pacingMode)
+            self.currentUser.text = "Active User: " + userDatabase.get_user(self.currentUsername)[0]
+            self.display_active_pacingMode.text = "Pacing Mode: " + pacingMode
+            self.display_LRL_parameter.text = "Lower Rate Limit: " + LRL
+            self.display_MSR_parameter.text = "Maximum Sensor Rate: " + MSR
+            self.display_AtrAmp_parameter.text = "Atrium Aplitude: " + AtrAmp
+            self.display_VentAmp_parameter.text = "Ventricle Amplitude: " + VentAmp
+            self.display_AtrPulseWidth_parameter.text = "AtrPulseWidth: " + AtrPulseWidth
+            self.display_VentPulseWidth_parameter.text = "VentPulseWidth: " + VentPulseWidth
+            self.display_ARP_parameter.text = "Atrium Refractory Period: " + ARP
+            self.display_VRP_parameter.text = "Ventricular Refractory Period: " + VRP
+            self.display_AtrSens_parameter.text = "AtrSensitivity: " + AtrSens
+            self.display_VentSens_parameter.text = "VentSensitivity: " + VentSens
+            self.display_reactionTime_parameter.text = "Reaction Time: " + reactionTime
+            self.display_recoveryTime_parameter.text = "Recovery Time: " + recoveryTime
+            self.display_AVDelay_parameter.text = "AV Delay: " + AVDelay
+            self.display_resFactor_parameter.text = "Response Factor: " + resFactor
+            self.display_AccThreshold1_parameter.text = "Still Threshold: " + AccThreshold1
+            self.display_AccThreshold2_parameter.text = "Walking Threshold: " + AccThreshold2
+            self.display_AccThreshold3_parameter.text = "Running Threshold: " + AccThreshold3
 
-        self.currentUser.text = "Active User: " + userDatabase.get_user(self.currentUsername)[0]
-        self.display_active_pacingMode.text = "Pacing Mode: " + pacingMode
-        self.display_LRL_parameter.text = "Lower Rate Limit: " + LRL
-        self.display_MSR_parameter.text = "Maximum Sensor Rate: " + MSR
-        self.display_AtrAmp_parameter.text = "Atrium Aplitude: " + AtrAmp
-        self.display_VentAmp_parameter.text = "Ventricle Amplitude: " + VentAmp
-        self.display_AtrPulseWidth_parameter.text = "AtrPulseWidth: " + AtrPulseWidth
-        self.display_VentPulseWidth_parameter.text = "VentPulseWidth: " + VentPulseWidth
-        self.display_ARP_parameter.text = "Atrium Refractory Period: " + ARP
-        self.display_VRP_parameter.text = "Ventricular Refractory Period: " + VRP
-        self.display_AtrSens_parameter.text = "AtrSensitivity: " + AtrSens
-        self.display_VentSens_parameter.text = "VentSensitivity: " + VentSens
-        self.display_reactionTime_parameter.text = "Reaction Time: " + reactionTime
-        self.display_recoveryTime_parameter.text = "Recovery Time: " + recoveryTime
-        self.display_AVDelay_parameter.text = "AV Delay: " + AVDelay
-        self.display_resFactor_parameter.text = "Response Factor: " + resFactor
-        self.display_AccThreshold1_parameter.text = "Still Threshold: " + AccThreshold1
-        self.display_AccThreshold2_parameter.text = "Walking Threshold: " + AccThreshold2
-        self.display_AccThreshold3_parameter.text = "Running Threshold: " + AccThreshold3
+        except:
+            genericError()
 
         self.file.close()
         

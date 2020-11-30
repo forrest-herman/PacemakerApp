@@ -733,13 +733,14 @@
         GridLayout:
             rows:2
             pos_hint: {"center_x":0.5, "center_y":0.5}
-            size_hint: 0.8, 1
-            spacing: 30
-            padding: 20
+            size_hint: 0.9, 1
+            spacing: 10
+            padding: 10
 
             GridLayout:
-                size_hint_y: 0.9
-                rows: 17 # number of programmable parameters
+                size_hint_y: 0.92
+                #rows: 17 # number of programmable parameters
+                cols: 2
                 spacing: 7
                 
                 Button:
@@ -844,17 +845,10 @@
                         root.setIndex(17) #index to keep track of which button was pressed
                         root.open_textInput("Please enter desired recovery value")
 
-                # Button:
-                #     text:"Upper Rate Limit"
-                #     on_press: 
-                #         root.setIndex(9) #index to keep track of which button was pressed
-                #         root.open_textInput("Please enter desired URL value")
-
-                
 
             GridLayout:
                 rows:1
-                size_hint_y: 0.1
+                size_hint_y: 0.08
 
                 Button:
                     text:"Done"
